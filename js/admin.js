@@ -10,7 +10,6 @@
   const sessionInfo = document.getElementById("session-info");
   const progSlots = document.getElementById("prog-slots");
   const conveniosList = document.getElementById("convenios-list");
-  const infoList = document.getElementById("info-list");
 
   let config = null;
   let session = null;
@@ -606,11 +605,14 @@
   }
 
   function renderInfoAdmin() {
-    const bloques = content.info?.bloques || [];
-    infoList.innerHTML = "";
+    const listEl = document.getElementById("info-list");
+    if (!listEl) return;
+
+    const bloques = Array.isArray(content?.info?.bloques) ? content.info.bloques : [];
+    listEl.innerHTML = "";
 
     if (!bloques.length) {
-      infoList.innerHTML = `<p class="empty-note">No hay bloques todavía. Crea el primero arriba.</p>`;
+      listEl.innerHTML = `<p class="empty-note">No hay bloques todavía. Crea el primero abajo.</p>`;
       return;
     }
 
@@ -650,6 +652,12 @@
         card.appendChild(ul);
       }
 
+      if (Array.isArray(block.links) && block.links.length) {
+        const p = document.createElement("p");
+        p.textContent = `${block.links.length} enlace(s)`;
+        card.appendChild(p);
+      }
+
       const actions = document.createElement("div");
       actions.className = "actions";
 
@@ -667,7 +675,7 @@
 
       actions.append(editBtn, delBtn);
       card.appendChild(actions);
-      infoList.appendChild(card);
+      listEl.appendChild(card);
     });
   }
 

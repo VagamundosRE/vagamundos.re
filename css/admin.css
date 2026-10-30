@@ -164,7 +164,7 @@ select {
   font: inherit;
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 textarea {
   width: 100%;
   min-height: 2.75rem;
@@ -297,20 +297,34 @@ textarea {
 }
 
 .check-row {
-  display: flex !important;
+  display: flex;
   align-items: center;
-  gap: 0.65rem;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--muted);
+  gap: 0.55rem;
+  margin-top: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.check-row input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  accent-color: var(--orange);
   cursor: pointer;
 }
 
-.check-row input {
-  width: auto;
-  min-height: auto;
+.check-row label {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--muted);
+  cursor: pointer;
 }
 
 .info-admin-list {
