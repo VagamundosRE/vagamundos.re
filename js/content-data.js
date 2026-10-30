@@ -10,12 +10,8 @@ window.VAGAMUNDOS_CONTENT = {
     "subtitulo": "Calendario trimestral del grupo",
     "images": [
       {
-        "path": "assets/programacion/programa-1.jpeg",
-        "alt": "Programación de rodadas 1"
-      },
-      {
         "path": "assets/programacion/programa-2.jpeg",
-        "alt": "Programación de rodadas 2"
+        "alt": "Programación de rodadas 1"
       }
     ],
     "updatedAt": "2026-10-30"
