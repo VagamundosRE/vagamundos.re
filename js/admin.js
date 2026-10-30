@@ -103,7 +103,7 @@
     }
     content.info = content.info || {
       titulo: "Información relevante",
-      subtitulo: "Referencias útiles para Himalayan",
+      subtitulo: "Referencias útiles",
       bloques: [],
     };
     if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
@@ -695,7 +695,7 @@
     try {
       content.info = content.info || {
         titulo: "Información relevante",
-        subtitulo: "Referencias útiles para Himalayan",
+        subtitulo: "Referencias útiles",
         bloques: [],
       };
       content.info.bloques = content.info.bloques || [];

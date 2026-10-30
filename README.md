@@ -1,13 +1,13 @@
 # Vagamundos — sitio web
 
-Sitio estático del grupo **Vagamundos Himalayan · Royal Enfield · Cali**, listo para publicar en **GitHub Pages**.
+Sitio estático del grupo **Vagamundos · Royal Enfield · Cali**, listo para publicar en **GitHub Pages**.
 
 ## Qué incluye
 
 - **Inicio** con video/logo de marca
 - **Programación** de rodadas (1–2 imágenes trimestrales)
 - **Convenios** (galería acumulativa)
-- **Información relevante** (SOAT, taller, referencias Himalayan)
+- **Información relevante** (SOAT, taller, referencias del grupo)
 - **Panel admin** (`admin.html`) que sube archivos al repo vía GitHub API
 
 Colores y tipografía tomados del manual de marca:

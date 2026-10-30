@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "Vagamundos",
-    "tagline": "Himalayan · Royal Enfield · Cali",
+    "tagline": "Royal Enfield · Cali",
     "whatsapp": "",
     "instagram": ""
   },
@@ -32,7 +32,7 @@
   ],
   "info": {
     "titulo": "Información relevante",
-    "subtitulo": "Referencias útiles para Himalayan",
+    "subtitulo": "Referencias útiles",
     "bloques": [
       {
         "titulo": "SOAT",
@@ -57,7 +57,7 @@
       {
         "titulo": "Llantas Himalayan",
         "items": [
-          "Trasera: 120 - 90 / R 17",
+          "Trasera: 120 - 90 / R 17", 
           "Delantera: 90 - 90 / R21"
         ]
       },

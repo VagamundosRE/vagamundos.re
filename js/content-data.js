@@ -1,7 +1,7 @@
 window.VAGAMUNDOS_CONTENT = {
   "site": {
     "name": "Vagamundos",
-    "tagline": "Himalayan · Royal Enfield · Cali",
+    "tagline": "Royal Enfield · Cali",
     "whatsapp": "",
     "instagram": ""
   },
@@ -32,7 +32,7 @@ window.VAGAMUNDOS_CONTENT = {
   ],
   "info": {
     "titulo": "Información relevante",
-    "subtitulo": "Referencias útiles para Himalayan",
+    "subtitulo": "Referencias útiles",
     "bloques": [
       {
         "titulo": "SOAT",
@@ -55,7 +55,7 @@ window.VAGAMUNDOS_CONTENT = {
         ]
       },
       {
-        "titulo": "Llantas Himalayan",
+        "titulo": "Llantas",
         "items": [
           "Trasera: 120 - 90 / R 17",
           "Delantera: 90 - 90 / R21"
