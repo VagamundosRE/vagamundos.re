@@ -89,6 +89,46 @@
         <h3 class="list-title">Convenios publicados</h3>
         <div class="preview-row" id="convenios-list"></div>
       </section>
+
+      <section class="panel">
+        <h2>3. Información relevante</h2>
+        <p>Agrega o edita bloques de ayuda (SOAT, talleres, referencias, etc.).</p>
+
+        <input type="hidden" id="info-edit-index" value="" />
+
+        <label>
+          Título del bloque
+          <input type="text" id="info-titulo" placeholder="Ej. Aceite recomendado" />
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Texto (opcional)
+          <textarea id="info-texto" rows="3" placeholder="Descripción corta del bloque"></textarea>
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Lista de ítems (opcional, uno por línea)
+          <textarea id="info-items" rows="5" placeholder="Trasera: 120 - 90 / R 17&#10;Delantera: 90 - 90 / R21"></textarea>
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Enlaces (opcional, uno por línea: texto | url)
+          <textarea id="info-links" rows="3" placeholder="Seguros Mundial | https://www.segurosmundial.com.co/"></textarea>
+        </label>
+
+        <label class="check-row" style="margin-top: 0.85rem">
+          <input type="checkbox" id="info-wide" />
+          <span>Ocupar todo el ancho (útil para listas largas)</span>
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-save-info">Guardar bloque</button>
+          <button class="btn btn-ghost hidden" type="button" id="btn-cancel-info">Cancelar edición</button>
+        </div>
+
+        <h3 class="list-title">Bloques publicados</h3>
+        <div id="info-list" class="info-admin-list"></div>
+      </section>
     </div>
   </div>
 

@@ -10,6 +10,7 @@
   const sessionInfo = document.getElementById("session-info");
   const progSlots = document.getElementById("prog-slots");
   const conveniosList = document.getElementById("convenios-list");
+  const infoList = document.getElementById("info-list");
 
   let config = null;
   let session = null;
@@ -101,8 +102,16 @@
       content.programacion = content.programacion || {};
       content.programacion.images = [];
     }
+    content.info = content.info || {
+      titulo: "Información relevante",
+      subtitulo: "Referencias útiles para Himalayan",
+      bloques: [],
+    };
+    if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
+
     renderProgramacionAdmin();
     renderConveniosAdmin();
+    renderInfoAdmin();
     sessionInfo.textContent = "Conectado · puedes publicar cambios";
   }
 
@@ -540,9 +549,195 @@
     }
   }
 
+  function parseInfoForm() {
+    const titulo = document.getElementById("info-titulo").value.trim();
+    const texto = document.getElementById("info-texto").value.trim();
+    const items = document
+      .getElementById("info-items")
+      .value.split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const links = document
+      .getElementById("info-links")
+      .value.split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const parts = line.split("|").map((part) => part.trim());
+        if (parts.length >= 2) {
+          return { label: parts[0], url: parts.slice(1).join("|") };
+        }
+        return { label: parts[0], url: parts[0] };
+      })
+      .filter((link) => link.url);
+
+    const wide = document.getElementById("info-wide").checked;
+    const block = { titulo };
+    if (texto) block.texto = texto;
+    if (items.length) block.items = items;
+    if (links.length) block.links = links;
+    if (wide) block.wide = true;
+    return block;
+  }
+
+  function fillInfoForm(block, index) {
+    document.getElementById("info-edit-index").value = String(index);
+    document.getElementById("info-titulo").value = block.titulo || "";
+    document.getElementById("info-texto").value = block.texto || "";
+    document.getElementById("info-items").value = (block.items || []).join("\n");
+    document.getElementById("info-links").value = (block.links || [])
+      .map((link) => `${link.label || link.url} | ${link.url}`)
+      .join("\n");
+    document.getElementById("info-wide").checked = Boolean(block.wide);
+    document.getElementById("btn-cancel-info").classList.remove("hidden");
+    document.getElementById("btn-save-info").textContent = "Actualizar bloque";
+    document.getElementById("info-titulo").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function clearInfoForm() {
+    document.getElementById("info-edit-index").value = "";
+    document.getElementById("info-titulo").value = "";
+    document.getElementById("info-texto").value = "";
+    document.getElementById("info-items").value = "";
+    document.getElementById("info-links").value = "";
+    document.getElementById("info-wide").checked = false;
+    document.getElementById("btn-cancel-info").classList.add("hidden");
+    document.getElementById("btn-save-info").textContent = "Guardar bloque";
+  }
+
+  function renderInfoAdmin() {
+    const bloques = content.info?.bloques || [];
+    infoList.innerHTML = "";
+
+    if (!bloques.length) {
+      infoList.innerHTML = `<p class="empty-note">No hay bloques todavía. Crea el primero arriba.</p>`;
+      return;
+    }
+
+    bloques.forEach((block, index) => {
+      const card = document.createElement("div");
+      card.className = "info-admin-card";
+
+      const h4 = document.createElement("h4");
+      h4.textContent = block.titulo || `Bloque ${index + 1}`;
+      card.appendChild(h4);
+
+      if (block.wide) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "Ancho completo";
+        card.appendChild(badge);
+      }
+
+      if (block.texto) {
+        const p = document.createElement("p");
+        p.textContent = block.texto;
+        card.appendChild(p);
+      }
+
+      if (Array.isArray(block.items) && block.items.length) {
+        const ul = document.createElement("ul");
+        block.items.slice(0, 4).forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          ul.appendChild(li);
+        });
+        if (block.items.length > 4) {
+          const li = document.createElement("li");
+          li.textContent = `… y ${block.items.length - 4} más`;
+          ul.appendChild(li);
+        }
+        card.appendChild(ul);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "btn btn-ghost";
+      editBtn.textContent = "Editar";
+      editBtn.addEventListener("click", () => fillInfoForm(block, index));
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Quitar";
+      delBtn.addEventListener("click", () => deleteInfoBlock(index));
+
+      actions.append(editBtn, delBtn);
+      card.appendChild(actions);
+      infoList.appendChild(card);
+    });
+  }
+
+  async function saveInfoBlock() {
+    const block = parseInfoForm();
+    if (!block.titulo) {
+      showStatus(globalStatus, "Escribe un título para el bloque.", "err");
+      return;
+    }
+    if (!block.texto && !(block.items && block.items.length) && !(block.links && block.links.length)) {
+      showStatus(globalStatus, "Agrega al menos un texto, una lista o un enlace.", "err");
+      return;
+    }
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      content.info = content.info || {
+        titulo: "Información relevante",
+        subtitulo: "Referencias útiles para Himalayan",
+        bloques: [],
+      };
+      content.info.bloques = content.info.bloques || [];
+
+      const editIndex = document.getElementById("info-edit-index").value;
+      if (editIndex === "") {
+        content.info.bloques.push(block);
+        await commitContent(`Agregar info: ${block.titulo}`);
+        showStatus(globalStatus, "Bloque agregado.", "ok");
+      } else {
+        const index = Number(editIndex);
+        content.info.bloques[index] = block;
+        await commitContent(`Actualizar info: ${block.titulo}`);
+        showStatus(globalStatus, "Bloque actualizado.", "ok");
+      }
+
+      clearInfoForm();
+      renderInfoAdmin();
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteInfoBlock(index) {
+    const block = content.info?.bloques?.[index];
+    if (!block) return;
+    if (!confirm(`¿Quitar el bloque "${block.titulo || index}"?`)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      content.info.bloques.splice(index, 1);
+      await commitContent(`Quitar info: ${block.titulo || index}`);
+      if (document.getElementById("info-edit-index").value === String(index)) clearInfoForm();
+      renderInfoAdmin();
+      showStatus(globalStatus, "Bloque eliminado.", "ok");
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   document.getElementById("btn-login").addEventListener("click", login);
   document.getElementById("btn-logout").addEventListener("click", logout);
   document.getElementById("btn-add-convenio").addEventListener("click", addConvenio);
+  document.getElementById("btn-save-info").addEventListener("click", saveInfoBlock);
+  document.getElementById("btn-cancel-info").addEventListener("click", clearInfoForm);
   document.getElementById("prog-add-file").addEventListener("change", (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
