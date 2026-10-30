@@ -46,17 +46,19 @@
 
       <section class="panel">
         <h2>1. Programación</h2>
-        <p>Elige 1 o 2 imágenes del trimestre. Al guardar, reemplazan la programación anterior.</p>
+        <p>
+          Hasta 2 imágenes. Cada una se administra por separado: puedes
+          <strong>cambiar</strong> o <strong>quitar</strong> solo la que necesites.
+          Si agregas una nueva y ya hay una, la anterior se mantiene.
+        </p>
 
-        <label class="file-drop">
-          <span>Toca aquí para elegir las imágenes</span>
-          <input type="file" id="prog-files" accept="image/*" multiple />
-        </label>
+        <div class="preview-row" id="prog-slots"></div>
 
-        <div class="preview-row" id="prog-preview"></div>
-
-        <div class="actions">
-          <button class="btn btn-primary" type="button" id="btn-save-prog">Guardar programación</button>
+        <div id="prog-add-wrap" class="actions">
+          <label class="btn btn-primary file-btn">
+            Agregar imagen
+            <input type="file" id="prog-add-file" accept="image/*" hidden />
+          </label>
         </div>
       </section>
 

@@ -1,13 +1,15 @@
 (() => {
   const Git = window.VagamundosGit;
   const STORAGE_KEY = "vagamundos-admin-session";
+  const MAX_PROG = 2;
 
   const loginPanel = document.getElementById("login-panel");
   const dashboard = document.getElementById("dashboard");
   const loginStatus = document.getElementById("login-status");
   const globalStatus = document.getElementById("global-status");
   const sessionInfo = document.getElementById("session-info");
-  const progPreview = document.getElementById("prog-preview");
+  const progSlots = document.getElementById("prog-slots");
+  const progAddWrap = document.getElementById("prog-add-wrap");
   const conveniosList = document.getElementById("convenios-list");
 
   let config = null;
@@ -68,8 +70,13 @@
   }
 
   function setBusy(busy) {
-    document.querySelectorAll(".btn").forEach((btn) => {
+    document.querySelectorAll(".btn, .file-btn").forEach((btn) => {
       btn.disabled = busy;
+      if (busy) btn.setAttribute("aria-disabled", "true");
+      else btn.removeAttribute("aria-disabled");
+    });
+    document.querySelectorAll('input[type="file"]').forEach((input) => {
+      input.disabled = busy;
     });
   }
 
@@ -91,7 +98,11 @@
     if (!file) throw new Error("No se encontró el contenido del sitio en GitHub");
     content = JSON.parse(Git.decodeBase64Utf8(file.content));
     contentSha = file.sha;
-    showCurrentProgramacion();
+    if (!Array.isArray(content.programacion?.images)) {
+      content.programacion = content.programacion || {};
+      content.programacion.images = [];
+    }
+    renderProgramacionAdmin();
     renderConveniosAdmin();
     sessionInfo.textContent = "Conectado · puedes publicar cambios";
   }
@@ -104,31 +115,55 @@
     )}/${fullPath}?t=${Date.now()}`;
   }
 
-  function showCurrentProgramacion(localFiles) {
-    progPreview.innerHTML = "";
+  function renderProgramacionAdmin() {
     const images = content.programacion?.images || [];
-
-    if (localFiles?.length) {
-      localFiles.forEach((file, index) => {
-        const el = document.createElement("img");
-        el.src = URL.createObjectURL(file);
-        el.alt = images[index]?.alt || file.name || "Programación";
-        progPreview.appendChild(el);
-      });
-      return;
-    }
+    progSlots.innerHTML = "";
 
     if (!images.length) {
-      progPreview.innerHTML = `<p class="empty-note">Todavía no hay programación publicada.</p>`;
-      return;
+      progSlots.innerHTML = `<p class="empty-note">Todavía no hay programación. Usa “Agregar imagen”.</p>`;
     }
-    images.forEach((img) => {
-      const el = document.createElement("img");
-      // raw.githubusercontent se actualiza al instante; Pages tarda 1–2 min
-      el.src = rawAssetUrl(img.path);
-      el.alt = img.alt || "Programación actual";
-      progPreview.appendChild(el);
+
+    images.forEach((item, index) => {
+      const wrap = document.createElement("div");
+      wrap.className = "prog-slot";
+
+      const title = document.createElement("div");
+      title.className = "prog-slot-title";
+      title.textContent = `Imagen ${index + 1}`;
+
+      const img = document.createElement("img");
+      img.src = rawAssetUrl(item.path);
+      img.alt = item.alt || `Programación ${index + 1}`;
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const replaceLabel = document.createElement("label");
+      replaceLabel.className = "btn btn-ghost file-btn";
+      replaceLabel.textContent = "Cambiar";
+      const replaceInput = document.createElement("input");
+      replaceInput.type = "file";
+      replaceInput.accept = "image/*";
+      replaceInput.hidden = true;
+      replaceInput.addEventListener("change", () => {
+        const file = replaceInput.files?.[0];
+        if (file) replaceProgramacionImage(index, file);
+        replaceInput.value = "";
+      });
+      replaceLabel.appendChild(replaceInput);
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "btn btn-danger";
+      del.textContent = "Quitar";
+      del.addEventListener("click", () => deleteProgramacionImage(index));
+
+      actions.append(replaceLabel, del);
+      wrap.append(title, img, actions);
+      progSlots.appendChild(wrap);
     });
+
+    progAddWrap.classList.toggle("hidden", images.length >= MAX_PROG);
   }
 
   function renderConveniosAdmin() {
@@ -215,8 +250,119 @@
         message: `Quitar archivo ${relativePath}`,
       });
     } catch (error) {
-      // Si ya no está, seguimos; no bloquea la publicación
       if (!String(error.message).includes("404")) throw error;
+    }
+  }
+
+  function touchProgramacionMeta() {
+    content.programacion = {
+      ...content.programacion,
+      titulo: content.programacion?.titulo || "Programación de rodadas",
+      subtitulo: content.programacion?.subtitulo || "Calendario trimestral del grupo",
+      images: content.programacion?.images || [],
+      updatedAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async function addProgramacionImage(file) {
+    const images = content.programacion?.images || [];
+    if (images.length >= MAX_PROG) {
+      showStatus(globalStatus, "Ya hay 2 imágenes. Quita una o cámbiala.", "err");
+      return;
+    }
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Agregando imagen…", "ok");
+
+    try {
+      const ext = Git.extensionFromFile(file);
+      const relative = `assets/programacion/programa-${Date.now()}.${ext}`;
+      await uploadBinary(withRoot(relative), file, "Agregar imagen de programación");
+
+      images.push({
+        path: relative,
+        alt: `Programación de rodadas ${images.length + 1}`,
+      });
+      content.programacion.images = images;
+      touchProgramacionMeta();
+      await commitContent("Agregar imagen de programación");
+      renderProgramacionAdmin();
+      showStatus(
+        globalStatus,
+        "Imagen agregada. La otra (si había) se mantuvo. El sitio puede tardar 1–2 min.",
+        "ok"
+      );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function replaceProgramacionImage(index, file) {
+    const images = content.programacion?.images || [];
+    const current = images[index];
+    if (!current) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, `Cambiando imagen ${index + 1}…`, "ok");
+
+    try {
+      const ext = Git.extensionFromFile(file);
+      const relative = `assets/programacion/programa-${Date.now()}.${ext}`;
+      await uploadBinary(withRoot(relative), file, `Cambiar programación ${index + 1}`);
+
+      const oldPath = current.path;
+      images[index] = {
+        path: relative,
+        alt: `Programación de rodadas ${index + 1}`,
+      };
+      content.programacion.images = images;
+      touchProgramacionMeta();
+
+      if (oldPath && oldPath !== relative) await removeRepoFile(oldPath);
+
+      await commitContent(`Cambiar imagen de programación ${index + 1}`);
+      renderProgramacionAdmin();
+      showStatus(
+        globalStatus,
+        `Imagen ${index + 1} actualizada. Las demás no se tocaron.`,
+        "ok"
+      );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteProgramacionImage(index) {
+    const images = content.programacion?.images || [];
+    const current = images[index];
+    if (!current) return;
+    if (!confirm(`¿Quitar la imagen ${index + 1} de la programación?`)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Quitando imagen…", "ok");
+
+    try {
+      await removeRepoFile(current.path);
+      images.splice(index, 1);
+      images.forEach((img, i) => {
+        img.alt = `Programación de rodadas ${i + 1}`;
+      });
+      content.programacion.images = images;
+      touchProgramacionMeta();
+      await commitContent(`Quitar imagen de programación ${index + 1}`);
+      renderProgramacionAdmin();
+      showStatus(globalStatus, "Imagen eliminada.", "ok");
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -276,79 +422,6 @@
     clearStatus(globalStatus);
   }
 
-  async function publishProgramacion() {
-    const files = [...document.getElementById("prog-files").files];
-    if (!files.length) {
-      showStatus(globalStatus, "Elige 1 o 2 imágenes de la nueva programación.", "err");
-      return;
-    }
-    if (files.length > 2) {
-      showStatus(globalStatus, "Solo se permiten máximo 2 imágenes.", "err");
-      return;
-    }
-
-    setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, "Subiendo programación…", "ok");
-
-    try {
-      const oldImages = [...(content.programacion?.images || [])];
-      const published = [];
-
-      // Nombres fijos: se reemplazan en el mismo archivo (evita errores al borrar)
-      for (let i = 0; i < files.length; i += 1) {
-        const file = files[i];
-        const ext = Git.extensionFromFile(file);
-        const relative = `assets/programacion/programa-${i + 1}.${ext}`;
-        await uploadBinary(withRoot(relative), file, `Actualizar programación ${i + 1}`);
-        published.push({
-          path: relative,
-          alt: `Programación de rodadas ${i + 1}`,
-        });
-      }
-
-      // Limpia rutas viejas distintas a las nuevas (si existen)
-      const keep = new Set(published.map((img) => img.path));
-      for (const old of oldImages) {
-        if (!old?.path || keep.has(old.path)) continue;
-        await removeRepoFile(old.path);
-      }
-
-      // Si ahora hay 1 imagen y antes había programa-2.*, quitarla
-      if (files.length === 1) {
-        for (const orphan of [
-          "assets/programacion/programa-2.jpeg",
-          "assets/programacion/programa-2.jpg",
-          "assets/programacion/programa-2.png",
-          "assets/programacion/programa-2.webp",
-        ]) {
-          if (!keep.has(orphan)) await removeRepoFile(orphan);
-        }
-      }
-
-      content.programacion = {
-        ...content.programacion,
-        titulo: content.programacion?.titulo || "Programación de rodadas",
-        subtitulo: content.programacion?.subtitulo || "Calendario trimestral del grupo",
-        images: published,
-        updatedAt: new Date().toISOString().slice(0, 10),
-      };
-
-      await commitContent("Actualizar programación de rodadas");
-      showCurrentProgramacion(files);
-      document.getElementById("prog-files").value = "";
-      showStatus(
-        globalStatus,
-        "Programación guardada. El sitio público puede tardar 1–2 minutos en actualizarse.",
-        "ok"
-      );
-    } catch (error) {
-      showStatus(globalStatus, error.message, "err");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function addConvenio() {
     const file = document.getElementById("convenio-file").files[0];
     const titulo = document.getElementById("convenio-titulo").value.trim() || "Convenio";
@@ -398,7 +471,6 @@
     clearStatus(globalStatus);
     try {
       await removeRepoFile(item.path);
-
       content.convenios = content.convenios.filter((c) => c.id !== id);
       await commitContent(`Quitar convenio ${item.titulo || id}`);
       renderConveniosAdmin();
@@ -412,18 +484,11 @@
 
   document.getElementById("btn-login").addEventListener("click", login);
   document.getElementById("btn-logout").addEventListener("click", logout);
-  document.getElementById("btn-save-prog").addEventListener("click", publishProgramacion);
   document.getElementById("btn-add-convenio").addEventListener("click", addConvenio);
-
-  document.getElementById("prog-files").addEventListener("change", (event) => {
-    const files = [...event.target.files].slice(0, 2);
-    progPreview.innerHTML = "";
-    files.forEach((file) => {
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(file);
-      img.alt = file.name;
-      progPreview.appendChild(img);
-    });
+  document.getElementById("prog-add-file").addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (file) addProgramacionImage(file);
   });
 
   document.getElementById("site-password").addEventListener("keydown", (e) => {

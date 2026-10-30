@@ -254,11 +254,38 @@ textarea {
   background: #111;
 }
 
-.convenio-admin {
+.convenio-admin,
+.prog-slot {
   display: grid;
   gap: 0.55rem;
   padding: 0.85rem;
   border: 1px solid var(--line);
+}
+
+.prog-slot-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.prog-slot .actions,
+.convenio-admin .actions {
+  margin-top: 0.25rem;
+}
+
+.file-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.file-btn input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .hidden {
