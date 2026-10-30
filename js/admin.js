@@ -96,16 +96,36 @@
     sessionInfo.textContent = "Conectado · puedes publicar cambios";
   }
 
-  function showCurrentProgramacion() {
+  function rawAssetUrl(path) {
+    const root = (session.siteRoot || "").replace(/^\/+|\/+$/g, "");
+    const fullPath = root ? `${root}/${path}` : path;
+    return `https://raw.githubusercontent.com/${session.owner}/${session.repo}/${encodeURIComponent(
+      session.branch
+    )}/${fullPath}?t=${Date.now()}`;
+  }
+
+  function showCurrentProgramacion(localFiles) {
     progPreview.innerHTML = "";
     const images = content.programacion?.images || [];
+
+    if (localFiles?.length) {
+      localFiles.forEach((file, index) => {
+        const el = document.createElement("img");
+        el.src = URL.createObjectURL(file);
+        el.alt = images[index]?.alt || file.name || "Programación";
+        progPreview.appendChild(el);
+      });
+      return;
+    }
+
     if (!images.length) {
       progPreview.innerHTML = `<p class="empty-note">Todavía no hay programación publicada.</p>`;
       return;
     }
     images.forEach((img) => {
       const el = document.createElement("img");
-      el.src = img.path;
+      // raw.githubusercontent se actualiza al instante; Pages tarda 1–2 min
+      el.src = rawAssetUrl(img.path);
       el.alt = img.alt || "Programación actual";
       progPreview.appendChild(el);
     });
@@ -124,7 +144,7 @@
       wrap.className = "convenio-admin";
 
       const img = document.createElement("img");
-      img.src = item.path;
+      img.src = rawAssetUrl(item.path);
       img.alt = item.alt || item.titulo || "Convenio";
 
       const title = document.createElement("strong");
@@ -315,9 +335,13 @@
       };
 
       await commitContent("Actualizar programación de rodadas");
+      showCurrentProgramacion(files);
       document.getElementById("prog-files").value = "";
-      showCurrentProgramacion();
-      showStatus(globalStatus, "Programación guardada. En 1–2 minutos se verá en la web.", "ok");
+      showStatus(
+        globalStatus,
+        "Programación guardada. El sitio público puede tardar 1–2 minutos en actualizarse.",
+        "ok"
+      );
     } catch (error) {
       showStatus(globalStatus, error.message, "err");
     } finally {
@@ -353,7 +377,11 @@
       document.getElementById("convenio-file").value = "";
       document.getElementById("convenio-titulo").value = "";
       renderConveniosAdmin();
-      showStatus(globalStatus, "Convenio agregado. En 1–2 minutos se verá en la web.", "ok");
+      showStatus(
+        globalStatus,
+        "Convenio agregado. El sitio público puede tardar 1–2 minutos en actualizarse.",
+        "ok"
+      );
     } catch (error) {
       showStatus(globalStatus, error.message, "err");
     } finally {

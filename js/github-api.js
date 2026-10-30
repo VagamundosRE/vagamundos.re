@@ -43,6 +43,23 @@ window.VagamundosGit = (() => {
       body: JSON.stringify(body),
     });
 
+    // Si el archivo ya existe y no mandamos sha correcto, reintenta
+    if ((response.status === 409 || response.status === 422) && !sha) {
+      const existing = await getFile({ owner, repo, path, branch, token });
+      if (existing?.sha) {
+        return putFile({
+          owner,
+          repo,
+          path,
+          branch,
+          token,
+          contentBase64,
+          message,
+          sha: existing.sha,
+        });
+      }
+    }
+
     if (!response.ok) {
       const detail = await response.text();
       throw new Error(`GitHub PUT ${path}: ${response.status} ${detail}`);
