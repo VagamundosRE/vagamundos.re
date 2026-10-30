@@ -403,6 +403,39 @@ a {
   letter-spacing: 0.06em;
 }
 
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.25rem;
+  margin: 0.25rem 0 0.35rem;
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  opacity: 1;
+  color: var(--orange-light);
+}
+
+.footer-social svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
 .footer-credits {
   display: grid;
   gap: 0.75rem;
@@ -410,34 +443,48 @@ a {
   justify-items: center;
 }
 
-.site-credit {
+.site-credit-brand {
+  width: min(18rem, 100%);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.credit-label {
+  margin: 0 0 0.55rem !important;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.credit-list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+}
+
+.credit-list li {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
-  margin: 0;
-  white-space: nowrap;
-  opacity: 0.48;
+  gap: 0.75rem;
+  min-height: 2.6rem;
   color: var(--muted);
   font-size: 0.88rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  transition: opacity 0.25s ease;
+  letter-spacing: 0.03em;
+  opacity: 0.48;
+  transition: opacity 0.25s ease, color 0.25s ease;
 }
 
-.site-credit-brand {
-  flex-wrap: wrap;
-  white-space: normal;
-  text-align: center;
-  font-weight: 500;
-  font-size: 0.84rem;
-  opacity: 0.45;
-  row-gap: 0.35rem;
-}
-
-.site-credit:hover,
-.site-credit-brand:hover {
-  opacity: 0.78;
+.credit-list li:hover {
+  opacity: 0.95;
+  color: var(--paper);
 }
 
 .credit-logo {
@@ -449,21 +496,19 @@ a {
 }
 
 .credit-logo-julian {
-  height: 3.1rem;
+  height: 2.5rem;
   width: auto;
-  max-width: 5rem;
+  max-width: 3.2rem;
   flex-shrink: 0;
   object-fit: contain;
-  opacity: 0.92;
 }
 
 .credit-logo-mood {
-  height: 2.55rem;
+  height: 1.85rem;
   width: auto;
-  max-width: 11rem;
+  max-width: 7.5rem;
   flex-shrink: 0;
   object-fit: contain;
-  opacity: 0.95;
 }
 
 .lightbox {
