@@ -288,6 +288,14 @@ textarea {
   cursor: pointer;
 }
 
+.prog-actions {
+  flex-wrap: wrap;
+}
+
+.panel .hint {
+  margin-top: 0.85rem;
+}
+
 .hidden {
   display: none !important;
 }

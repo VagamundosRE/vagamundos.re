@@ -47,19 +47,25 @@
       <section class="panel">
         <h2>1. Programación</h2>
         <p>
-          Hasta 2 imágenes. Cada una se administra por separado: puedes
-          <strong>cambiar</strong> o <strong>quitar</strong> solo la que necesites.
-          Si agregas una nueva y ya hay una, la anterior se mantiene.
+          Hasta 2 imágenes. Puedes administrarlas una por una, o reemplazar todo el trimestre de una sola vez.
         </p>
 
         <div class="preview-row" id="prog-slots"></div>
 
-        <div id="prog-add-wrap" class="actions">
-          <label class="btn btn-primary file-btn">
+        <div class="actions prog-actions">
+          <label class="btn btn-primary file-btn" id="prog-add-wrap">
             Agregar imagen
             <input type="file" id="prog-add-file" accept="image/*" hidden />
           </label>
+          <label class="btn btn-ghost file-btn">
+            Reemplazar todas (1 o 2)
+            <input type="file" id="prog-replace-all" accept="image/*" multiple hidden />
+          </label>
         </div>
+        <p class="hint">
+          <strong>Agregar</strong> conserva las que ya hay (máx. 2).
+          <strong>Reemplazar todas</strong> borra las anteriores y deja solo las que elijas ahora.
+        </p>
       </section>
 
       <section class="panel">

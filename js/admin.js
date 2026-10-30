@@ -9,7 +9,6 @@
   const globalStatus = document.getElementById("global-status");
   const sessionInfo = document.getElementById("session-info");
   const progSlots = document.getElementById("prog-slots");
-  const progAddWrap = document.getElementById("prog-add-wrap");
   const conveniosList = document.getElementById("convenios-list");
 
   let config = null;
@@ -163,7 +162,8 @@
       progSlots.appendChild(wrap);
     });
 
-    progAddWrap.classList.toggle("hidden", images.length >= MAX_PROG);
+    const addWrap = document.getElementById("prog-add-wrap");
+    if (addWrap) addWrap.classList.toggle("hidden", images.length >= MAX_PROG);
   }
 
   function renderConveniosAdmin() {
@@ -366,6 +366,64 @@
     }
   }
 
+  async function replaceAllProgramacion(files) {
+    const selected = [...files].slice(0, MAX_PROG);
+    if (!selected.length) {
+      showStatus(globalStatus, "Elige 1 o 2 imágenes.", "err");
+      return;
+    }
+    if (files.length > MAX_PROG) {
+      showStatus(globalStatus, "Solo se usan las primeras 2 imágenes seleccionadas.", "ok");
+    }
+
+    const currentCount = content.programacion?.images?.length || 0;
+    const confirmMsg =
+      currentCount > 0
+        ? `Esto borrará las ${currentCount} imagen(es) actuales y dejará ${selected.length} nueva(s). ¿Continuar?`
+        : `Se publicarán ${selected.length} imagen(es) de programación. ¿Continuar?`;
+    if (!confirm(confirmMsg)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Reemplazando programación…", "ok");
+
+    try {
+      const oldImages = [...(content.programacion?.images || [])];
+      const published = [];
+
+      for (let i = 0; i < selected.length; i += 1) {
+        const file = selected[i];
+        const ext = Git.extensionFromFile(file);
+        const relative = `assets/programacion/programa-${Date.now()}-${i + 1}.${ext}`;
+        await uploadBinary(withRoot(relative), file, `Reemplazar programación ${i + 1}`);
+        published.push({
+          path: relative,
+          alt: `Programación de rodadas ${i + 1}`,
+        });
+      }
+
+      for (const old of oldImages) {
+        if (!old?.path) continue;
+        if (published.some((img) => img.path === old.path)) continue;
+        await removeRepoFile(old.path);
+      }
+
+      content.programacion.images = published;
+      touchProgramacionMeta();
+      await commitContent("Reemplazar programación de rodadas");
+      renderProgramacionAdmin();
+      showStatus(
+        globalStatus,
+        "Programación reemplazada. El sitio público puede tardar 1–2 minutos.",
+        "ok"
+      );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function login() {
     clearStatus(loginStatus);
     const password = document.getElementById("site-password").value.trim();
@@ -489,6 +547,12 @@
     const file = event.target.files?.[0];
     event.target.value = "";
     if (file) addProgramacionImage(file);
+  });
+
+  document.getElementById("prog-replace-all").addEventListener("change", (event) => {
+    const files = event.target.files;
+    event.target.value = "";
+    if (files?.length) replaceAllProgramacion(files);
   });
 
   document.getElementById("site-password").addEventListener("keydown", (e) => {
