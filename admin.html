@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Publicar · Vagamundos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="icon" href="assets/logos/isotipo.png" />
+</head>
+<body>
+  <div class="admin-shell">
+    <div class="admin-brand">
+      <img src="assets/logos/wordmark-blanco.png" alt="Vagamundos" />
+      <a href="index.html">Ver sitio</a>
+    </div>
+
+    <section class="panel" id="login-panel">
+      <h1>Publicar contenido</h1>
+      <p>Usa la contraseña y el código que te compartieron para actualizar la programación o los convenios.</p>
+
+      <label>
+        Contraseña
+        <input type="password" id="site-password" autocomplete="current-password" />
+      </label>
+      <label style="margin-top: 0.85rem">
+        Código de publicación
+        <input type="password" id="github-token" autocomplete="off" placeholder="El código que te enviaron" />
+      </label>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="button" id="btn-login">Entrar</button>
+      </div>
+      <div class="status hidden" id="login-status"></div>
+    </section>
+
+    <div id="dashboard" class="hidden">
+      <div class="top-bar">
+        <p id="session-info">Listo para publicar</p>
+        <button class="btn btn-ghost" type="button" id="btn-logout">Salir</button>
+      </div>
+      <div class="status hidden" id="global-status"></div>
+
+      <section class="panel">
+        <h2>1. Programación</h2>
+        <p>Elige 1 o 2 imágenes del trimestre. Al guardar, reemplazan la programación anterior.</p>
+
+        <label class="file-drop">
+          <span>Toca aquí para elegir las imágenes</span>
+          <input type="file" id="prog-files" accept="image/*" multiple />
+        </label>
+
+        <div class="preview-row" id="prog-preview"></div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-save-prog">Guardar programación</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2. Convenios</h2>
+        <p>Agrega un convenio nuevo. Los anteriores se mantienen.</p>
+
+        <label>
+          Nombre (opcional)
+          <input type="text" id="convenio-titulo" placeholder="Ej. CDA Motorcenter" />
+        </label>
+
+        <label class="file-drop" style="margin-top: 0.85rem">
+          <span>Toca aquí para elegir la imagen del convenio</span>
+          <input type="file" id="convenio-file" accept="image/*" />
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-add-convenio">Agregar convenio</button>
+        </div>
+
+        <h3 class="list-title">Convenios publicados</h3>
+        <div class="preview-row" id="convenios-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/github-api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

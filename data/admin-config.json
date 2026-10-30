@@ -1,0 +1,9 @@
+{
+  "repoOwner": "VagamundosRE",
+  "repoName": "vagamundos.re",
+  "branch": "main",
+  "siteRoot": "",
+  "passwordHash": "66130bad1a92709e862818c1e003df489040f7bf91a876347055518c6bb694ab",
+  "passwordHint": "Contraseña por defecto: vagamundos",
+  "setup": "Token fine-grained con Contents: Read and write. Compártelo en privado como código de publicación."
+}

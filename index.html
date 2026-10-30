@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vagamundos Himalayan — Royal Enfield Cali. Programación de rodadas, convenios e información del grupo." />
+  <title>Vagamundos · Himalayan · Royal Enfield Cali</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/logos/isotipo.png" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="site-header" id="top">
+    <a class="brand-mark" href="#top" aria-label="Vagamundos inicio">
+      <img src="assets/logos/wordmark-blanco.png" alt="Vagamundos" class="brand-wordmark" />
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menú">
+      <span></span><span></span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Principal">
+      <a href="#programacion">Programación</a>
+      <a href="#convenios">Convenios</a>
+      <a href="#info">Info</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Portada Vagamundos">
+      <div class="hero-media">
+        <video class="hero-video" autoplay muted loop playsinline poster="assets/logos/isologo-hexagono.png">
+          <source src="assets/media/hero.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-veil"></div>
+      </div>
+      <div class="hero-content">
+        <img
+          class="hero-logo"
+          src="assets/logos/isologo-hexagono.png"
+          alt="Vaga-Mundos Himalayan Royal Enfield Cali"
+        />
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#programacion">Ver programación</a>
+          <a class="btn btn-ghost" href="#convenios">Convenios</a>
+        </div>
+      </div>
+      <a class="scroll-cue" href="#programacion" aria-label="Ir a programación">
+        <img src="assets/logos/isotipo.png" alt="" />
+      </a>
+    </section>
+
+    <section class="section section-programacion" id="programacion">
+      <div class="section-head reveal">
+        <p class="eyebrow">Trimestral</p>
+        <h2 id="prog-title">Programación de rodadas</h2>
+        <p class="section-lead" id="prog-lead">Calendario trimestral del grupo</p>
+        <p class="meta" id="prog-updated" hidden></p>
+      </div>
+      <div class="programacion-gallery reveal" id="programacion-gallery"></div>
+    </section>
+
+    <section class="section section-convenios" id="convenios">
+      <div class="section-head reveal">
+        <p class="eyebrow">Aliados</p>
+        <h2>Convenios</h2>
+        <p class="section-lead">Beneficios activos para el grupo Vagamundos</p>
+      </div>
+      <div class="convenios-grid reveal" id="convenios-grid"></div>
+    </section>
+
+    <section class="section section-info" id="info">
+      <div class="section-head reveal">
+        <p class="eyebrow">Himalayan</p>
+        <h2 id="info-title">Información relevante</h2>
+        <p class="section-lead" id="info-lead">Referencias útiles para Himalayan</p>
+      </div>
+      <div class="info-grid reveal" id="info-grid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <img src="assets/logos/logo-completo-blanco.png" alt="Vagamundos Himalayan Royal Enfield Cali" class="footer-logo" />
+    <p>Vagamundos · Royal Enfield · Cali</p>
+    <a class="footer-admin" href="admin.html">Administración</a>
+  </footer>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <button type="button" class="lightbox-close" aria-label="Cerrar">&times;</button>
+    <img src="" alt="" id="lightbox-img" />
+  </div>
+
+  <script src="js/content-data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
