@@ -128,7 +128,7 @@
 
     bloques.forEach((block) => {
       const article = document.createElement("article");
-      article.className = "info-block";
+      article.className = block.wide ? "info-block info-block-wide" : "info-block";
 
       const h3 = document.createElement("h3");
       h3.textContent = block.titulo || "Detalle";

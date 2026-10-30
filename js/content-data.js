@@ -94,6 +94,7 @@ window.VAGAMUNDOS_CONTENT = {
       },
       {
         "titulo": "Repuestos compatibles (Pulsar y otras)",
+        "wide": true,
         "items": [
           "Batería (NS)",
           "Pastillas de freno (180 DEL y NS200 Tras)",

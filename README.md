@@ -22,7 +22,7 @@ Colores y tipografía tomados del manual de marca:
 | Café | `#3B2415` |
 | Negro | `#0A0A0A` |
 | Papel | `#F9F9F9` |
-| Tipografía | Montserrat |
+| Tipografía | Tektur |
 
 ## Vista local
 
