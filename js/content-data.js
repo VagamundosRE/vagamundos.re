@@ -10,11 +10,11 @@ window.VAGAMUNDOS_CONTENT = {
     "subtitulo": "Calendario trimestral del grupo",
     "images": [
       {
-        "path": "assets/programacion/programa-actual.jpeg",
-        "alt": "Programación de rodadas Vagamundos"
+        "path": "assets/programacion/programa-1793374135443-1.jpeg",
+        "alt": "Programación de rodadas 1"
       }
     ],
-    "updatedAt": "2026-10-01"
+    "updatedAt": "2026-10-30"
   },
   "convenios": [
     {
@@ -45,7 +45,7 @@ window.VAGAMUNDOS_CONTENT = {
         ]
       },
       {
-        "titulo": "Thunder Bikes",
+        "titulo": "Taller Especializado - Thunder Bikes",
         "texto": "Calle 5 #43-20 local 2. Jhon Cardona · Cel. 310 4547161",
         "links": [
           {
