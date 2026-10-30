@@ -10,8 +10,12 @@
     "subtitulo": "Calendario trimestral del grupo",
     "images": [
       {
-        "path": "assets/programacion/programa-1793374460585-1.jpeg",
+        "path": "assets/programacion/programa-1.jpeg",
         "alt": "Programación de rodadas 1"
+      },
+      {
+        "path": "assets/programacion/programa-2.jpeg",
+        "alt": "Programación de rodadas 2"
       }
     ],
     "updatedAt": "2026-10-30"
