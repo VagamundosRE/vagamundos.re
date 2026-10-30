@@ -10,7 +10,7 @@ window.VAGAMUNDOS_CONTENT = {
     "subtitulo": "Calendario trimestral del grupo",
     "images": [
       {
-        "path": "assets/programacion/programa-1793374135443-1.jpeg",
+        "path": "assets/programacion/programa-1793374460585-1.jpeg",
         "alt": "Programación de rodadas 1"
       }
     ],
