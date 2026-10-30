@@ -58,6 +58,9 @@ window.VagamundosGit = (() => {
       body: JSON.stringify({ message, sha, branch }),
     });
 
+    // Ya no existe: no es error para el flujo de publicación
+    if (response.status === 404) return null;
+
     if (!response.ok) {
       const detail = await response.text();
       throw new Error(`GitHub DELETE ${path}: ${response.status} ${detail}`);
@@ -70,7 +73,8 @@ window.VagamundosGit = (() => {
     let binary = "";
     const chunk = 0x8000;
     for (let i = 0; i < bytes.length; i += chunk) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      const slice = bytes.subarray(i, i + chunk);
+      binary += String.fromCharCode.apply(null, slice);
     }
     return btoa(binary);
   }

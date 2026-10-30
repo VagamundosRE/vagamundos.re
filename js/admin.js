@@ -141,7 +141,14 @@
     });
   }
 
+  async function refreshContentSha() {
+    const path = withRoot("data/content.json");
+    const file = await Git.getFile({ ...repoArgs(), path });
+    contentSha = file?.sha || null;
+  }
+
   async function commitContent(message) {
+    await refreshContentSha();
     const jsonText = `${JSON.stringify(content, null, 2)}\n`;
     const path = withRoot("data/content.json");
     const result = await Git.putFile({
@@ -174,6 +181,23 @@
       message,
       sha: existing?.sha,
     });
+  }
+
+  async function removeRepoFile(relativePath) {
+    const path = withRoot(relativePath);
+    const existing = await Git.getFile({ ...repoArgs(), path });
+    if (!existing) return;
+    try {
+      await Git.deleteFile({
+        ...repoArgs(),
+        path,
+        sha: existing.sha,
+        message: `Quitar archivo ${relativePath}`,
+      });
+    } catch (error) {
+      // Si ya no está, seguimos; no bloquea la publicación
+      if (!String(error.message).includes("404")) throw error;
+    }
   }
 
   async function login() {
@@ -245,16 +269,17 @@
 
     setBusy(true);
     clearStatus(globalStatus);
+    showStatus(globalStatus, "Subiendo programación…", "ok");
 
     try {
       const oldImages = [...(content.programacion?.images || [])];
-      const stamped = Date.now();
       const published = [];
 
+      // Nombres fijos: se reemplazan en el mismo archivo (evita errores al borrar)
       for (let i = 0; i < files.length; i += 1) {
         const file = files[i];
         const ext = Git.extensionFromFile(file);
-        const relative = `assets/programacion/programa-${stamped}-${i + 1}.${ext}`;
+        const relative = `assets/programacion/programa-${i + 1}.${ext}`;
         await uploadBinary(withRoot(relative), file, `Actualizar programación ${i + 1}`);
         published.push({
           path: relative,
@@ -262,17 +287,22 @@
         });
       }
 
+      // Limpia rutas viejas distintas a las nuevas (si existen)
+      const keep = new Set(published.map((img) => img.path));
       for (const old of oldImages) {
-        if (!old?.path) continue;
-        const oldPath = withRoot(old.path);
-        const existing = await Git.getFile({ ...repoArgs(), path: oldPath });
-        if (existing) {
-          await Git.deleteFile({
-            ...repoArgs(),
-            path: oldPath,
-            sha: existing.sha,
-            message: `Quitar programación anterior`,
-          });
+        if (!old?.path || keep.has(old.path)) continue;
+        await removeRepoFile(old.path);
+      }
+
+      // Si ahora hay 1 imagen y antes había programa-2.*, quitarla
+      if (files.length === 1) {
+        for (const orphan of [
+          "assets/programacion/programa-2.jpeg",
+          "assets/programacion/programa-2.jpg",
+          "assets/programacion/programa-2.png",
+          "assets/programacion/programa-2.webp",
+        ]) {
+          if (!keep.has(orphan)) await removeRepoFile(orphan);
         }
       }
 
@@ -339,16 +369,7 @@
     setBusy(true);
     clearStatus(globalStatus);
     try {
-      const path = withRoot(item.path);
-      const existing = await Git.getFile({ ...repoArgs(), path });
-      if (existing) {
-        await Git.deleteFile({
-          ...repoArgs(),
-          path,
-          sha: existing.sha,
-          message: `Quitar convenio ${item.titulo || id}`,
-        });
-      }
+      await removeRepoFile(item.path);
 
       content.convenios = content.convenios.filter((c) => c.id !== id);
       await commitContent(`Quitar convenio ${item.titulo || id}`);
