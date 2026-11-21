@@ -20,7 +20,7 @@
 
     <section class="panel" id="login-panel">
       <h1>Publicar contenido</h1>
-      <p>Usa la contraseña y el código que te compartieron para actualizar la programación o los convenios.</p>
+      <p>Usa la contraseña y el código que te compartieron para actualizar programación, convenios, servicios e información.</p>
 
       <label>
         Contraseña
@@ -97,7 +97,58 @@
       </section>
 
       <section class="panel">
-        <h2>3. Información relevante</h2>
+        <h2>3. Banco de servicios</h2>
+        <p>Agrega o edita servicios de pilotos del grupo (negocios, contacto y descuentos).</p>
+
+        <h3 class="list-title" style="margin-top: 0.5rem">Servicios publicados</h3>
+        <div id="coaching-list" class="info-admin-list"></div>
+
+        <h3 class="list-title">Nuevo / editar servicio</h3>
+        <input type="hidden" id="coaching-edit-index" value="" />
+
+        <label>
+          Nombre del piloto
+          <input type="text" id="coaching-piloto" placeholder="Ej. Julian Vargas" />
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Nombre del negocio
+          <input type="text" id="coaching-negocio" placeholder="Ej. Alterius CDC" />
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Actividad económica
+          <textarea id="coaching-actividad" rows="3" placeholder="Qué ofrece el piloto"></textarea>
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Celular (WhatsApp)
+          <input type="text" id="coaching-celular" placeholder="3187880666" inputmode="tel" />
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Correo (opcional)
+          <input type="email" id="coaching-mail" placeholder="correo@ejemplo.com" />
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Redes sociales (opcional, una por línea)
+          <textarea id="coaching-redes" rows="3" placeholder="IG: @usuario&#10;Tiktok: @usuario"></textarea>
+        </label>
+
+        <label style="margin-top: 0.85rem">
+          Descuento Vagamundos (opcional)
+          <textarea id="coaching-descuento" rows="2" placeholder="20% sobre cualquiera de los paquetes."></textarea>
+        </label>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-save-coaching">Guardar servicio</button>
+          <button class="btn btn-ghost hidden" type="button" id="btn-cancel-coaching">Cancelar edición</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>4. Información relevante</h2>
         <p>Agrega o edita bloques de ayuda (SOAT, talleres, referencias, etc.).</p>
 
         <h3 class="list-title" style="margin-top: 0.5rem">Bloques publicados</h3>

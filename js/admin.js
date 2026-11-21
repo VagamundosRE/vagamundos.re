@@ -15,6 +15,8 @@
   let session = null;
   let content = null;
   let contentSha = null;
+  let coaching = [];
+  let coachingSha = null;
   let programacionImages = [];
 
   function showStatus(el, message, type) {
@@ -113,11 +115,57 @@
     };
     if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
 
+    await fetchCoaching();
     await rebuildProgramacionFromFolder();
     renderProgramacionAdmin();
     renderConveniosAdmin();
+    renderCoachingAdmin();
     renderInfoAdmin();
     sessionInfo.textContent = "Conectado · puedes publicar cambios";
+  }
+
+  async function fetchCoaching() {
+    const path = withRoot("data/coaching_vagamundos.json");
+    const file = await Git.getFile({ ...repoArgs(), path });
+    if (!file) {
+      coaching = [];
+      coachingSha = null;
+      return;
+    }
+    const parsed = JSON.parse(Git.decodeBase64Utf8(file.content));
+    coaching = Array.isArray(parsed) ? parsed : [];
+    coachingSha = file.sha;
+  }
+
+  async function refreshCoachingSha() {
+    const path = withRoot("data/coaching_vagamundos.json");
+    const file = await Git.getFile({ ...repoArgs(), path });
+    coachingSha = file?.sha || null;
+  }
+
+  async function commitCoaching(message) {
+    await refreshCoachingSha();
+    const jsonText = `${JSON.stringify(coaching, null, 2)}\n`;
+    const path = withRoot("data/coaching_vagamundos.json");
+    const result = await Git.putFile({
+      ...repoArgs(),
+      path,
+      contentBase64: Git.textToBase64(jsonText),
+      message,
+      sha: coachingSha,
+    });
+    coachingSha = result.content.sha;
+
+    const dataJsPath = withRoot("js/coaching-data.js");
+    const existingJs = await Git.getFile({ ...repoArgs(), path: dataJsPath });
+    const dataJs = `window.VAGAMUNDOS_COACHING = ${JSON.stringify(coaching, null, 2)};\n`;
+    await Git.putFile({
+      ...repoArgs(),
+      path: dataJsPath,
+      contentBase64: Git.textToBase64(dataJs),
+      message: `${message} (respaldo local)`,
+      sha: existingJs?.sha,
+    });
   }
 
   function rawAssetUrl(path) {
@@ -650,6 +698,168 @@
     }
   }
 
+  function parseCoachingForm() {
+    const nombre_piloto = document.getElementById("coaching-piloto").value.trim();
+    const nombre_negocio = document.getElementById("coaching-negocio").value.trim();
+    const actividad_economica = document.getElementById("coaching-actividad").value.trim();
+    const celular = document.getElementById("coaching-celular").value.trim();
+    const mailRaw = document.getElementById("coaching-mail").value.trim();
+    const redes_sociales = document.getElementById("coaching-redes").value.trim() || null;
+    const descuento = document.getElementById("coaching-descuento").value.trim() || null;
+
+    return {
+      nombre_piloto,
+      nombre_negocio,
+      actividad_economica,
+      celular,
+      mail: mailRaw || null,
+      redes_sociales,
+      descuento,
+    };
+  }
+
+  function fillCoachingForm(item, index) {
+    document.getElementById("coaching-edit-index").value = String(index);
+    document.getElementById("coaching-piloto").value = item.nombre_piloto || "";
+    document.getElementById("coaching-negocio").value = item.nombre_negocio || "";
+    document.getElementById("coaching-actividad").value = item.actividad_economica || "";
+    document.getElementById("coaching-celular").value = item.celular || "";
+    document.getElementById("coaching-mail").value = item.mail || "";
+    document.getElementById("coaching-redes").value = item.redes_sociales || "";
+    document.getElementById("coaching-descuento").value = item.descuento || "";
+    document.getElementById("btn-cancel-coaching").classList.remove("hidden");
+    document.getElementById("btn-save-coaching").textContent = "Actualizar servicio";
+    document.getElementById("coaching-piloto").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function clearCoachingForm() {
+    document.getElementById("coaching-edit-index").value = "";
+    document.getElementById("coaching-piloto").value = "";
+    document.getElementById("coaching-negocio").value = "";
+    document.getElementById("coaching-actividad").value = "";
+    document.getElementById("coaching-celular").value = "";
+    document.getElementById("coaching-mail").value = "";
+    document.getElementById("coaching-redes").value = "";
+    document.getElementById("coaching-descuento").value = "";
+    document.getElementById("btn-cancel-coaching").classList.add("hidden");
+    document.getElementById("btn-save-coaching").textContent = "Guardar servicio";
+  }
+
+  function renderCoachingAdmin() {
+    const listEl = document.getElementById("coaching-list");
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+    if (!coaching.length) {
+      listEl.innerHTML = `<p class="empty-note">No hay servicios todavía. Crea el primero abajo.</p>`;
+      return;
+    }
+
+    coaching.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "info-admin-card";
+
+      const h4 = document.createElement("h4");
+      h4.textContent = item.nombre_negocio || `Servicio ${index + 1}`;
+      card.appendChild(h4);
+
+      const pilot = document.createElement("p");
+      pilot.textContent = item.nombre_piloto || "Sin piloto";
+      card.appendChild(pilot);
+
+      if (item.actividad_economica) {
+        const activity = document.createElement("p");
+        activity.textContent = item.actividad_economica;
+        card.appendChild(activity);
+      }
+
+      if (item.descuento) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = `Dto: ${item.descuento}`;
+        card.appendChild(badge);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "btn btn-ghost";
+      editBtn.textContent = "Editar";
+      editBtn.addEventListener("click", () => fillCoachingForm(item, index));
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Quitar";
+      delBtn.addEventListener("click", () => deleteCoachingItem(index));
+
+      actions.append(editBtn, delBtn);
+      card.appendChild(actions);
+      listEl.appendChild(card);
+    });
+  }
+
+  async function saveCoachingItem() {
+    const item = parseCoachingForm();
+    if (!item.nombre_piloto || !item.nombre_negocio) {
+      showStatus(globalStatus, "Completa el nombre del piloto y del negocio.", "err");
+      return;
+    }
+    if (!item.actividad_economica) {
+      showStatus(globalStatus, "Describe la actividad económica.", "err");
+      return;
+    }
+    if (!item.celular) {
+      showStatus(globalStatus, "Agrega un celular de contacto.", "err");
+      return;
+    }
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      const editIndex = document.getElementById("coaching-edit-index").value;
+      if (editIndex === "") {
+        coaching.push(item);
+        await commitCoaching(`Agregar servicio: ${item.nombre_negocio}`);
+        showStatus(globalStatus, "Servicio agregado.", "ok");
+      } else {
+        const index = Number(editIndex);
+        coaching[index] = item;
+        await commitCoaching(`Actualizar servicio: ${item.nombre_negocio}`);
+        showStatus(globalStatus, "Servicio actualizado.", "ok");
+      }
+
+      clearCoachingForm();
+      renderCoachingAdmin();
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteCoachingItem(index) {
+    const item = coaching[index];
+    if (!item) return;
+    if (!confirm(`¿Quitar el servicio "${item.nombre_negocio || index}"?`)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      coaching.splice(index, 1);
+      await commitCoaching(`Quitar servicio: ${item.nombre_negocio || index}`);
+      if (document.getElementById("coaching-edit-index").value === String(index)) clearCoachingForm();
+      renderCoachingAdmin();
+      showStatus(globalStatus, "Servicio eliminado.", "ok");
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function parseInfoForm() {
     const titulo = document.getElementById("info-titulo").value.trim();
     const texto = document.getElementById("info-texto").value.trim();
@@ -846,6 +1056,8 @@
   document.getElementById("btn-login").addEventListener("click", login);
   document.getElementById("btn-logout").addEventListener("click", logout);
   document.getElementById("btn-add-convenio").addEventListener("click", addConvenio);
+  document.getElementById("btn-save-coaching").addEventListener("click", saveCoachingItem);
+  document.getElementById("btn-cancel-coaching").addEventListener("click", clearCoachingForm);
   document.getElementById("btn-save-info").addEventListener("click", saveInfoBlock);
   document.getElementById("btn-cancel-info").addEventListener("click", clearInfoForm);
   document.getElementById("prog-add-file").addEventListener("change", (event) => {
