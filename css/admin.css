@@ -292,6 +292,78 @@ textarea {
   flex-wrap: wrap;
 }
 
+.admin-carrete {
+  margin-bottom: 1rem;
+}
+
+.admin-carrete .carrete-viewport {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #111;
+}
+
+.admin-carrete .carrete-track {
+  display: flex;
+}
+
+.admin-carrete .carrete-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.admin-carrete-slide img {
+  width: 100%;
+  display: block;
+  max-height: 26rem;
+  object-fit: contain;
+  background: #0a0a0a;
+}
+
+.admin-carrete .carrete-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 10, 0.75);
+  color: var(--paper);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.admin-carrete .carrete {
+  position: relative;
+}
+
+.admin-carrete .carrete-prev {
+  left: 0.5rem;
+}
+
+.admin-carrete .carrete-next {
+  right: 0.5rem;
+}
+
+.admin-carrete .carrete-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.admin-carrete .carrete-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0;
+  padding: 0;
+  background: rgba(249, 249, 249, 0.3);
+  cursor: pointer;
+}
+
+.admin-carrete .carrete-dot.is-active {
+  background: var(--orange-light);
+}
+
 .panel .hint {
   margin-top: 0.85rem;
 }

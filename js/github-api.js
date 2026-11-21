@@ -28,6 +28,17 @@ window.VagamundosGit = (() => {
     return response.json();
   }
 
+  async function listDir({ owner, repo, path, branch, token }) {
+    const data = await getFile({ owner, repo, path, branch, token });
+    if (!data) return [];
+    if (!Array.isArray(data)) return [];
+    return data;
+  }
+
+  function isImagePath(path) {
+    return /\.(jpe?g|png|webp|gif)$/i.test(path || "");
+  }
+
   async function putFile({ owner, repo, path, branch, token, contentBase64, message, sha }) {
     const url = `${API}/repos/${owner}/${repo}/contents/${encodePath(path)}`;
     const body = {
@@ -131,6 +142,8 @@ window.VagamundosGit = (() => {
 
   return {
     getFile,
+    listDir,
+    isImagePath,
     putFile,
     deleteFile,
     fileToBase64,

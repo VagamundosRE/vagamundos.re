@@ -7,14 +7,7 @@
   },
   "programacion": {
     "titulo": "Programación de rodadas",
-    "subtitulo": "Calendario trimestral del grupo",
-    "images": [
-      {
-        "path": "assets/programacion/programa-2.jpeg",
-        "alt": "Programación de rodadas 1"
-      }
-    ],
-    "updatedAt": "2026-10-30"
+    "subtitulo": "Calendario trimestral del grupo"
   },
   "convenios": [
     {
@@ -32,7 +25,7 @@
   ],
   "info": {
     "titulo": "Información relevante",
-    "subtitulo": "Referencias útiles",
+    "subtitulo": "Talleres, seguros y referencias técnicas",
     "bloques": [
       {
         "titulo": "SOAT",
@@ -45,7 +38,7 @@
         ]
       },
       {
-        "titulo": "Taller Especializado - Thunder Bikes",
+        "titulo": "Taller especializado — Thunder Bikes",
         "texto": "Calle 5 #43-20 local 2. Jhon Cardona · Cel. 310 4547161",
         "links": [
           {
@@ -55,22 +48,32 @@
         ]
       },
       {
-        "titulo": "Llantas Himalayan",
+        "titulo": "Llantas — Himalayan 411",
         "items": [
-          "Trasera: 120 - 90 / R 17", 
+          "Trasera: 120 - 90 / R 17",
           "Delantera: 90 - 90 / R21"
         ]
       },
       {
-        "titulo": "Baterías",
+        "titulo": "Llantas — Himalayan 450",
+        "items": [
+          "Trasera: 140 - 80 / R 17",
+          "Delantera: 90 - 90 / R21"
+        ]
+      },
+      {
+        "titulo": "Baterías — Himalayan 411",
         "texto": "Magna y Motobatt (Gel) MTX9 o YTX9"
       },
       {
         "titulo": "Aceite",
-        "texto": "Castrol POWER 1 · 15W 50 4T · Semisintético"
+        "items": [
+          "Recomendado por la marca — Castrol POWER 1 · 15W 50 4T · Semisintético",
+          "Recomendado por moteros — Wolf 4T 15W50 Racing Ester · Full sintético"
+        ]
       },
       {
-        "titulo": "Referencia neumáticos",
+        "titulo": "Referencia neumáticos — 411 y 450",
         "items": [
           "Trasero: 350-410 / 17",
           "Si tiene llanta 140 o 150 la ref. debe ser 410-450 / 17",
@@ -85,7 +88,7 @@
         ]
       },
       {
-        "titulo": "Rodamientos",
+        "titulo": "Rodamientos — Himalayan 411",
         "items": [
           "Delantera: 2 × Ref 6203",
           "Trasera: 2 × Ref 6203 + 1 × Ref 6005",
@@ -93,7 +96,7 @@
         ]
       },
       {
-        "titulo": "Repuestos compatibles (Pulsar y otras)",
+        "titulo": "Repuestos compatibles (Pulsar y otras → Himalayan 411)",
         "wide": true,
         "items": [
           "Batería (NS)",

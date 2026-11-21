@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Vagamundos — Royal Enfield Cali. Programación de rodadas, convenios e información del grupo." />
+  <meta name="description" content="Vagamundos — Royal Enfield Cali. Programación de rodadas, talleres recomendados, convenios e información del grupo." />
   <title>Vagamundos · Royal Enfield · Cali</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,6 +24,8 @@
     <nav class="site-nav" id="site-nav" aria-label="Principal">
       <a href="#programacion">Programación</a>
       <a href="#convenios">Convenios</a>
+      <a href="#coaching">Servicios</a>
+      <a href="#talleres">Talleres</a>
       <a href="#info">Info</a>
     </nav>
   </header>
@@ -71,6 +73,25 @@
       <div class="convenios-grid reveal" id="convenios-grid"></div>
     </section>
 
+    <section class="section section-coaching" id="coaching">
+      <div class="section-head reveal">
+        <p class="eyebrow">Entre Vagamundos</p>
+        <h2>Banco de servicios</h2>
+        <p class="section-lead">Pilotos del grupo que ofrecen servicios y descuentos para la comunidad</p>
+      </div>
+      <div class="coaching-grid reveal" id="coaching-grid"></div>
+    </section>
+
+    <section class="section section-talleres" id="talleres">
+      <div class="section-head reveal">
+        <p class="eyebrow">Red de apoyo</p>
+        <h2>Talleres recomendados</h2>
+        <p class="section-lead">Mecánicos y concesionarios sugeridos por el grupo, filtrados por ciudad</p>
+      </div>
+      <div class="talleres-toolbar reveal" id="talleres-filters" role="group" aria-label="Filtrar por ciudad"></div>
+      <div class="talleres-grid reveal" id="talleres-grid"></div>
+    </section>
+
     <section class="section section-info" id="info">
       <div class="section-head reveal">
         <p class="eyebrow">Grupo</p>
@@ -113,6 +134,20 @@
         </svg>
         <span>YouTube</span>
       </a>
+      <a
+        href="https://www.tiktok.com/@vagamundo_himalayan"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="TikTok Vagamundos"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M16.6 5.82A4.23 4.23 0 0 1 15.34 2h-3.28v13.67a2.69 2.69 0 0 1-2.71 2.67 2.7 2.7 0 0 1-2.71-2.67 2.7 2.7 0 0 1 2.71-2.68c.28 0 .55.04.81.12v-3.35a6.01 6.01 0 0 0-.81-.05A6.04 6.04 0 0 0 3.3 15.67 6.04 6.04 0 0 0 9.35 21.7a6.04 6.04 0 0 0 6.04-6.03V8.9a7.5 7.5 0 0 0 4.4 1.42V7.04a4.26 4.26 0 0 1-3.19-1.22Z"
+          />
+        </svg>
+        <span>TikTok</span>
+      </a>
     </nav>
     <div class="footer-credits">
       <div class="site-credit-brand">
@@ -146,6 +181,10 @@
   </div>
 
   <script src="js/content-data.js"></script>
+  <script src="js/programacion-data.js"></script>
+  <script src="js/coaching-data.js"></script>
+  <script src="js/talleres-data.js"></script>
+  <script src="js/carousel.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -47,24 +47,30 @@
       <section class="panel">
         <h2>1. Programación</h2>
         <p>
-          Hasta 2 imágenes. Puedes administrarlas una por una, o reemplazar todo el trimestre de una sola vez.
+          La carpeta <code>assets/programacion</code> es la fuente: no hace falta editar
+          <code>content.json</code>. Puedes agregar, cambiar, quitar o reemplazar todo.
         </p>
 
+        <div id="prog-carrete" class="admin-carrete"></div>
         <div class="preview-row" id="prog-slots"></div>
 
         <div class="actions prog-actions">
           <label class="btn btn-primary file-btn" id="prog-add-wrap">
-            Agregar imagen
-            <input type="file" id="prog-add-file" accept="image/*" hidden />
+            Agregar imagen(es)
+            <input type="file" id="prog-add-file" accept="image/*" multiple hidden />
           </label>
           <label class="btn btn-ghost file-btn">
-            Reemplazar todas (1 o 2)
+            Reemplazar todas
             <input type="file" id="prog-replace-all" accept="image/*" multiple hidden />
           </label>
+          <button class="btn btn-ghost" type="button" id="btn-sync-prog">Sincronizar carpeta</button>
+          <button class="btn btn-danger" type="button" id="btn-clear-prog">Borrar todas</button>
         </div>
         <p class="hint">
-          <strong>Agregar</strong> conserva las que ya hay (máx. 2).
-          <strong>Reemplazar todas</strong> borra las anteriores y deja solo las que elijas ahora.
+          <strong>Agregar</strong> suma sin borrar las actuales.
+          <strong>Reemplazar todas</strong> borra las de la carpeta y sube las nuevas.
+          <strong>Sincronizar carpeta</strong> vuelve a leer lo que hay en GitHub y actualiza el carrete.
+          <strong>Borrar todas</strong> deja la programación vacía.
         </p>
       </section>
 
@@ -134,6 +140,7 @@
   </div>
 
   <script src="js/github-api.js"></script>
+  <script src="js/carousel.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 (() => {
   const Git = window.VagamundosGit;
   const STORAGE_KEY = "vagamundos-admin-session";
-  const MAX_PROG = 2;
+  const PROG_DIR = "assets/programacion";
 
   const loginPanel = document.getElementById("login-panel");
   const dashboard = document.getElementById("dashboard");
@@ -15,6 +15,7 @@
   let session = null;
   let content = null;
   let contentSha = null;
+  let programacionImages = [];
 
   function showStatus(el, message, type) {
     el.classList.remove("hidden", "ok", "err");
@@ -97,10 +98,14 @@
     if (!file) throw new Error("No se encontró el contenido del sitio en GitHub");
     content = JSON.parse(Git.decodeBase64Utf8(file.content));
     contentSha = file.sha;
-    if (!Array.isArray(content.programacion?.images)) {
-      content.programacion = content.programacion || {};
-      content.programacion.images = [];
-    }
+    content.programacion = content.programacion || {
+      titulo: "Programación de rodadas",
+      subtitulo: "Calendario trimestral del grupo",
+    };
+    // Las imágenes de programación viven en la carpeta, no en content.json
+    delete content.programacion.images;
+    delete content.programacion.updatedAt;
+
     content.info = content.info || {
       titulo: "Información relevante",
       subtitulo: "Referencias útiles",
@@ -108,6 +113,7 @@
     };
     if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
 
+    await rebuildProgramacionFromFolder();
     renderProgramacionAdmin();
     renderConveniosAdmin();
     renderInfoAdmin();
@@ -123,11 +129,36 @@
   }
 
   function renderProgramacionAdmin() {
-    const images = content.programacion?.images || [];
+    const images = programacionImages;
+    const carreteRoot = document.getElementById("prog-carrete");
     progSlots.innerHTML = "";
 
+    if (carreteRoot) {
+      if (!images.length) {
+        carreteRoot.innerHTML = `<p class="empty-note">Todavía no hay programación. Usa “Agregar imagen”.</p>`;
+      } else {
+        window.VagamundosCarousel.create({
+          root: carreteRoot,
+          items: images,
+          renderSlide(item, index) {
+            const wrap = document.createElement("div");
+            wrap.className = "admin-carrete-slide";
+            const img = document.createElement("img");
+            img.src = rawAssetUrl(item.path);
+            img.alt = item.alt || `Programación ${index + 1}`;
+            img.draggable = false;
+            const label = document.createElement("div");
+            label.className = "prog-slot-title";
+            label.textContent = `Imagen ${index + 1}`;
+            wrap.append(label, img);
+            return wrap;
+          },
+        });
+      }
+    }
+
     if (!images.length) {
-      progSlots.innerHTML = `<p class="empty-note">Todavía no hay programación. Usa “Agregar imagen”.</p>`;
+      progSlots.innerHTML = "";
     }
 
     images.forEach((item, index) => {
@@ -136,11 +167,7 @@
 
       const title = document.createElement("div");
       title.className = "prog-slot-title";
-      title.textContent = `Imagen ${index + 1}`;
-
-      const img = document.createElement("img");
-      img.src = rawAssetUrl(item.path);
-      img.alt = item.alt || `Programación ${index + 1}`;
+      title.textContent = `Gestionar imagen ${index + 1}`;
 
       const actions = document.createElement("div");
       actions.className = "actions";
@@ -166,12 +193,64 @@
       del.addEventListener("click", () => deleteProgramacionImage(index));
 
       actions.append(replaceLabel, del);
-      wrap.append(title, img, actions);
+      wrap.append(title, actions);
       progSlots.appendChild(wrap);
     });
 
-    const addWrap = document.getElementById("prog-add-wrap");
-    if (addWrap) addWrap.classList.toggle("hidden", images.length >= MAX_PROG);
+  }
+
+  function toPublicAssetPath(entry) {
+    let path = entry.path && entry.path.includes("/") ? entry.path : `${PROG_DIR}/${entry.name}`;
+    const root = (session.siteRoot || "").replace(/^\/+|\/+$/g, "");
+    if (root && path.startsWith(`${root}/`)) path = path.slice(root.length + 1);
+    return path;
+  }
+
+  function imagesFromFolderListing(entries) {
+    return (entries || [])
+      .filter((entry) => entry.type === "file" && Git.isImagePath(entry.name || entry.path))
+      .sort((a, b) => String(a.name).localeCompare(String(b.name), "es", { numeric: true }))
+      .map((entry, index) => ({
+        path: toPublicAssetPath(entry),
+        alt: `Programación de rodadas ${index + 1}`,
+      }));
+  }
+
+  async function rebuildProgramacionFromFolder() {
+    const entries = await Git.listDir({
+      ...repoArgs(),
+      path: withRoot(PROG_DIR),
+    });
+    programacionImages = imagesFromFolderListing(entries);
+  }
+
+  async function publishProgramacionManifest(message) {
+    await rebuildProgramacionFromFolder();
+    const manifest = {
+      updatedAt: new Date().toISOString().slice(0, 10),
+      images: programacionImages,
+    };
+
+    const manifestPath = withRoot("data/programacion-manifest.json");
+    const existingManifest = await Git.getFile({ ...repoArgs(), path: manifestPath });
+    await Git.putFile({
+      ...repoArgs(),
+      path: manifestPath,
+      contentBase64: Git.textToBase64(`${JSON.stringify(manifest, null, 2)}\n`),
+      message,
+      sha: existingManifest?.sha,
+    });
+
+    const dataJsPath = withRoot("js/programacion-data.js");
+    const existingJs = await Git.getFile({ ...repoArgs(), path: dataJsPath });
+    const dataJs = `window.VAGAMUNDOS_PROGRAMACION = ${JSON.stringify(manifest, null, 2)};\n`;
+    await Git.putFile({
+      ...repoArgs(),
+      path: dataJsPath,
+      contentBase64: Git.textToBase64(dataJs),
+      message: `${message} (respaldo local)`,
+      sha: existingJs?.sha,
+    });
   }
 
   function renderConveniosAdmin() {
@@ -211,6 +290,12 @@
   }
 
   async function commitContent(message) {
+    // Nunca guardar imágenes de programación aquí: viven en la carpeta + manifest
+    if (content?.programacion) {
+      delete content.programacion.images;
+      delete content.programacion.updatedAt;
+    }
+
     await refreshContentSha();
     const jsonText = `${JSON.stringify(content, null, 2)}\n`;
     const path = withRoot("data/content.json");
@@ -262,43 +347,31 @@
     }
   }
 
-  function touchProgramacionMeta() {
-    content.programacion = {
-      ...content.programacion,
-      titulo: content.programacion?.titulo || "Programación de rodadas",
-      subtitulo: content.programacion?.subtitulo || "Calendario trimestral del grupo",
-      images: content.programacion?.images || [],
-      updatedAt: new Date().toISOString().slice(0, 10),
-    };
-  }
-
-  async function addProgramacionImage(file) {
-    const images = content.programacion?.images || [];
-    if (images.length >= MAX_PROG) {
-      showStatus(globalStatus, "Ya hay 2 imágenes. Quita una o cámbiala.", "err");
+  async function addProgramacionImages(fileList) {
+    const files = [...fileList].filter(Boolean);
+    if (!files.length) {
+      showStatus(globalStatus, "Elige una o más imágenes.", "err");
       return;
     }
 
     setBusy(true);
     clearStatus(globalStatus);
-    showStatus(globalStatus, "Agregando imagen…", "ok");
+    showStatus(globalStatus, `Agregando ${files.length} imagen(es)…`, "ok");
 
     try {
-      const ext = Git.extensionFromFile(file);
-      const relative = `assets/programacion/programa-${Date.now()}.${ext}`;
-      await uploadBinary(withRoot(relative), file, "Agregar imagen de programación");
+      const stamp = Date.now();
+      for (let i = 0; i < files.length; i += 1) {
+        const file = files[i];
+        const ext = Git.extensionFromFile(file);
+        const relative = `${PROG_DIR}/programa-${stamp}-${i + 1}.${ext}`;
+        await uploadBinary(withRoot(relative), file, `Agregar programación ${i + 1}`);
+      }
 
-      images.push({
-        path: relative,
-        alt: `Programación de rodadas ${images.length + 1}`,
-      });
-      content.programacion.images = images;
-      touchProgramacionMeta();
-      await commitContent("Agregar imagen de programación");
+      await publishProgramacionManifest(`Agregar ${files.length} imagen(es) de programación`);
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        "Imagen agregada. La otra (si había) se mantuvo. El sitio puede tardar 1–2 min.",
+        `${files.length} imagen(es) agregada(s). El sitio puede tardar 1–2 min.`,
         "ok"
       );
     } catch (error) {
@@ -309,8 +382,7 @@
   }
 
   async function replaceProgramacionImage(index, file) {
-    const images = content.programacion?.images || [];
-    const current = images[index];
+    const current = programacionImages[index];
     if (!current) return;
 
     setBusy(true);
@@ -319,20 +391,13 @@
 
     try {
       const ext = Git.extensionFromFile(file);
-      const relative = `assets/programacion/programa-${Date.now()}.${ext}`;
+      const relative = `${PROG_DIR}/programa-${Date.now()}.${ext}`;
       await uploadBinary(withRoot(relative), file, `Cambiar programación ${index + 1}`);
 
       const oldPath = current.path;
-      images[index] = {
-        path: relative,
-        alt: `Programación de rodadas ${index + 1}`,
-      };
-      content.programacion.images = images;
-      touchProgramacionMeta();
-
       if (oldPath && oldPath !== relative) await removeRepoFile(oldPath);
 
-      await commitContent(`Cambiar imagen de programación ${index + 1}`);
+      await publishProgramacionManifest(`Cambiar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
@@ -347,8 +412,7 @@
   }
 
   async function deleteProgramacionImage(index) {
-    const images = content.programacion?.images || [];
-    const current = images[index];
+    const current = programacionImages[index];
     if (!current) return;
     if (!confirm(`¿Quitar la imagen ${index + 1} de la programación?`)) return;
 
@@ -358,13 +422,7 @@
 
     try {
       await removeRepoFile(current.path);
-      images.splice(index, 1);
-      images.forEach((img, i) => {
-        img.alt = `Programación de rodadas ${i + 1}`;
-      });
-      content.programacion.images = images;
-      touchProgramacionMeta();
-      await commitContent(`Quitar imagen de programación ${index + 1}`);
+      await publishProgramacionManifest(`Quitar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
       showStatus(globalStatus, "Imagen eliminada.", "ok");
     } catch (error) {
@@ -375,16 +433,13 @@
   }
 
   async function replaceAllProgramacion(files) {
-    const selected = [...files].slice(0, MAX_PROG);
+    const selected = [...files].filter(Boolean);
     if (!selected.length) {
-      showStatus(globalStatus, "Elige 1 o 2 imágenes.", "err");
+      showStatus(globalStatus, "Elige una o más imágenes.", "err");
       return;
     }
-    if (files.length > MAX_PROG) {
-      showStatus(globalStatus, "Solo se usan las primeras 2 imágenes seleccionadas.", "ok");
-    }
 
-    const currentCount = content.programacion?.images?.length || 0;
+    const currentCount = programacionImages.length;
     const confirmMsg =
       currentCount > 0
         ? `Esto borrará las ${currentCount} imagen(es) actuales y dejará ${selected.length} nueva(s). ¿Continuar?`
@@ -396,35 +451,82 @@
     showStatus(globalStatus, "Reemplazando programación…", "ok");
 
     try {
-      const oldImages = [...(content.programacion?.images || [])];
-      const published = [];
+      const oldImages = [...programacionImages];
+      const stamp = Date.now();
 
       for (let i = 0; i < selected.length; i += 1) {
         const file = selected[i];
         const ext = Git.extensionFromFile(file);
-        const relative = `assets/programacion/programa-${Date.now()}-${i + 1}.${ext}`;
+        const relative = `${PROG_DIR}/programa-${stamp}-${i + 1}.${ext}`;
         await uploadBinary(withRoot(relative), file, `Reemplazar programación ${i + 1}`);
-        published.push({
-          path: relative,
-          alt: `Programación de rodadas ${i + 1}`,
-        });
       }
 
       for (const old of oldImages) {
         if (!old?.path) continue;
-        if (published.some((img) => img.path === old.path)) continue;
         await removeRepoFile(old.path);
       }
 
-      content.programacion.images = published;
-      touchProgramacionMeta();
-      await commitContent("Reemplazar programación de rodadas");
+      const entries = await Git.listDir({ ...repoArgs(), path: withRoot(PROG_DIR) });
+      const keepPrefix = `programa-${stamp}-`;
+      for (const entry of entries) {
+        if (entry.type !== "file" || !Git.isImagePath(entry.name)) continue;
+        if (String(entry.name).startsWith(keepPrefix)) continue;
+        await removeRepoFile(toPublicAssetPath(entry));
+      }
+
+      await publishProgramacionManifest("Reemplazar programación de rodadas");
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        "Programación reemplazada. El sitio público puede tardar 1–2 minutos.",
+        `${selected.length} imagen(es) publicadas. El sitio puede tardar 1–2 minutos.`,
         "ok"
       );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function syncProgramacionFolder() {
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Sincronizando carpeta de programación…", "ok");
+    try {
+      await publishProgramacionManifest("Sincronizar programación desde carpeta");
+      renderProgramacionAdmin();
+      showStatus(
+        globalStatus,
+        `Carpeta sincronizada · ${programacionImages.length} imagen(es) en el carrete.`,
+        "ok"
+      );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function clearAllProgramacion() {
+    const currentCount = programacionImages.length;
+    if (!currentCount) {
+      showStatus(globalStatus, "No hay imágenes para borrar.", "err");
+      return;
+    }
+    if (!confirm(`¿Borrar las ${currentCount} imagen(es) de programación?`)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Borrando programación…", "ok");
+    try {
+      const entries = await Git.listDir({ ...repoArgs(), path: withRoot(PROG_DIR) });
+      for (const entry of entries) {
+        if (entry.type !== "file" || !Git.isImagePath(entry.name)) continue;
+        await removeRepoFile(toPublicAssetPath(entry));
+      }
+      await publishProgramacionManifest("Borrar toda la programación");
+      renderProgramacionAdmin();
+      showStatus(globalStatus, "Programación vaciada.", "ok");
     } catch (error) {
       showStatus(globalStatus, error.message, "err");
     } finally {
@@ -747,9 +849,9 @@
   document.getElementById("btn-save-info").addEventListener("click", saveInfoBlock);
   document.getElementById("btn-cancel-info").addEventListener("click", clearInfoForm);
   document.getElementById("prog-add-file").addEventListener("change", (event) => {
-    const file = event.target.files?.[0];
+    const files = event.target.files;
     event.target.value = "";
-    if (file) addProgramacionImage(file);
+    if (files?.length) addProgramacionImages(files);
   });
 
   document.getElementById("prog-replace-all").addEventListener("change", (event) => {
@@ -757,6 +859,9 @@
     event.target.value = "";
     if (files?.length) replaceAllProgramacion(files);
   });
+
+  document.getElementById("btn-sync-prog").addEventListener("click", syncProgramacionFolder);
+  document.getElementById("btn-clear-prog").addEventListener("click", clearAllProgramacion);
 
   document.getElementById("site-password").addEventListener("keydown", (e) => {
     if (e.key === "Enter") login();

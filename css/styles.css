@@ -273,12 +273,87 @@ a {
 }
 
 .programacion-gallery {
-  display: grid;
-  gap: 1.25rem;
+  max-width: 42rem;
+  margin: 0 auto;
 }
 
-.programacion-gallery.has-two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.carrete {
+  position: relative;
+}
+
+.carrete-viewport {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #15100d;
+  touch-action: pan-y;
+  outline: none;
+}
+
+.carrete-track {
+  display: flex;
+  will-change: transform;
+}
+
+.carrete-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.carrete-slide img,
+.prog-shot {
+  width: 100%;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.carrete-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 10, 0.72);
+  color: var(--paper);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carrete-prev {
+  left: 0.65rem;
+}
+
+.carrete-next {
+  right: 0.65rem;
+}
+
+.carrete-nav:hover {
+  border-color: var(--orange-light);
+  color: var(--orange-light);
+}
+
+.carrete-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
+
+.carrete-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgba(249, 249, 249, 0.28);
+  cursor: pointer;
+}
+
+.carrete-dot.is-active {
+  background: var(--orange-light);
 }
 
 .prog-shot,
@@ -290,10 +365,149 @@ a {
   transition: transform 0.35s var(--ease), border-color 0.25s ease;
 }
 
-.prog-shot:hover,
 .convenio-shot:hover {
   transform: translateY(-4px);
   border-color: rgba(232, 84, 26, 0.45);
+}
+
+.coaching-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.coaching-card {
+  padding: 1.25rem 1.15rem;
+  border-top: 2px solid var(--gold);
+  background: linear-gradient(180deg, rgba(59, 36, 21, 0.38), rgba(10, 10, 10, 0.18));
+}
+
+.coaching-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  color: var(--paper);
+}
+
+.coaching-pilot {
+  margin: 0 0 0.75rem;
+  color: var(--orange-light);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.coaching-activity {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.coaching-discount {
+  margin: 0 0 0.9rem;
+  color: var(--gold);
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: pre-line;
+}
+
+.coaching-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+}
+
+.coaching-contacts a {
+  color: var(--orange-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid currentColor;
+}
+
+.talleres-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.75rem;
+  margin: 0 0 1.35rem;
+}
+
+.talleres-filter {
+  appearance: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.15rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.talleres-filter:hover {
+  color: var(--paper);
+}
+
+.talleres-filter.is-active {
+  color: var(--gold);
+  border-bottom-color: var(--orange);
+}
+
+.talleres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.taller-card {
+  padding: 1.25rem 1.15rem;
+  border-top: 2px solid var(--amber);
+  background: linear-gradient(180deg, rgba(59, 36, 21, 0.38), rgba(10, 10, 10, 0.18));
+}
+
+.taller-city {
+  margin: 0 0 0.4rem;
+  color: var(--orange-light);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.taller-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  color: var(--paper);
+}
+
+.taller-details {
+  margin: 0 0 0.9rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.taller-details li {
+  margin: 0;
+}
+
+.taller-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+}
+
+.taller-contacts a {
+  color: var(--orange-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid currentColor;
 }
 
 .convenios-grid {
@@ -620,12 +834,13 @@ a {
     padding: 0.9rem 1rem;
   }
 
-  .programacion-gallery.has-two {
+  .info-grid {
     grid-template-columns: 1fr;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
+  .carrete-nav {
+    width: 2.15rem;
+    height: 2.15rem;
   }
 
   .info-block-wide ul {
