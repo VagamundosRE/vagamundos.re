@@ -39,7 +39,7 @@ window.VagamundosGit = (() => {
     return /\.(jpe?g|png|webp|gif)$/i.test(path || "");
   }
 
-  async function putFile({ owner, repo, path, branch, token, contentBase64, message, sha }) {
+  async function putFile({ owner, repo, path, branch, token, contentBase64, message, sha, _retries = 0 }) {
     const url = `${API}/repos/${owner}/${repo}/contents/${encodePath(path)}`;
     const body = {
       message,
@@ -54,10 +54,10 @@ window.VagamundosGit = (() => {
       body: JSON.stringify(body),
     });
 
-    // Si el archivo ya existe y no mandamos sha correcto, reintenta
-    if ((response.status === 409 || response.status === 422) && !sha) {
+    // SHA viejo o archivo creado en paralelo: refresca y reintenta
+    if ((response.status === 409 || response.status === 422) && _retries < 2) {
       const existing = await getFile({ owner, repo, path, branch, token });
-      if (existing?.sha) {
+      if (existing?.sha && existing.sha !== sha) {
         return putFile({
           owner,
           repo,
@@ -67,6 +67,20 @@ window.VagamundosGit = (() => {
           contentBase64,
           message,
           sha: existing.sha,
+          _retries: _retries + 1,
+        });
+      }
+      if (!existing && sha) {
+        return putFile({
+          owner,
+          repo,
+          path,
+          branch,
+          token,
+          contentBase64,
+          message,
+          sha: undefined,
+          _retries: _retries + 1,
         });
       }
     }
