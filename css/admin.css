@@ -101,6 +101,15 @@ a {
   font-size: 0.9rem;
 }
 
+.list-count {
+  margin-left: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
 .list-title {
   margin: 1.5rem 0 0.75rem;
   font-size: 0.85rem;

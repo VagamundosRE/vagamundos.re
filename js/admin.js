@@ -121,20 +121,72 @@
     renderConveniosAdmin();
     renderCoachingAdmin();
     renderInfoAdmin();
-    sessionInfo.textContent = "Conectado · puedes publicar cambios";
+    sessionInfo.textContent = coaching.length
+      ? `Conectado · ${coaching.length} servicios listos para editar`
+      : "Conectado · puedes publicar cambios";
+  }
+
+  function normalizeCoachingList(parsed) {
+    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed?.servicios)) return parsed.servicios;
+    if (Array.isArray(parsed?.items)) return parsed.items;
+    return [];
+  }
+
+  async function fetchCoachingFromUrl(url) {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return normalizeCoachingList(await response.json());
   }
 
   async function fetchCoaching() {
     const path = withRoot("data/coaching_vagamundos.json");
-    const file = await Git.getFile({ ...repoArgs(), path });
-    if (!file) {
-      coaching = [];
-      coachingSha = null;
-      return;
+    coaching = [];
+    coachingSha = null;
+
+    try {
+      const file = await Git.getFile({ ...repoArgs(), path });
+      if (file?.sha) coachingSha = file.sha;
+
+      if (file?.content) {
+        coaching = normalizeCoachingList(JSON.parse(Git.decodeBase64Utf8(file.content)));
+        if (coaching.length) return;
+      }
+
+      if (file?.download_url) {
+        const fromDownload = await fetchCoachingFromUrl(`${file.download_url}${file.download_url.includes("?") ? "&" : "?"}ts=${Date.now()}`);
+        if (fromDownload?.length) {
+          coaching = fromDownload;
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn("No se pudo leer coaching desde la API de GitHub.", error);
     }
-    const parsed = JSON.parse(Git.decodeBase64Utf8(file.content));
-    coaching = Array.isArray(parsed) ? parsed : [];
-    coachingSha = file.sha;
+
+    const rawUrl = `https://raw.githubusercontent.com/${session.owner}/${session.repo}/${encodeURIComponent(
+      session.branch
+    )}/${path}?ts=${Date.now()}`;
+
+    try {
+      const fromRaw = await fetchCoachingFromUrl(rawUrl);
+      if (fromRaw?.length) {
+        coaching = fromRaw;
+        return;
+      }
+    } catch (error) {
+      console.warn("No se pudo leer coaching desde raw.githubusercontent.", error);
+    }
+
+    try {
+      const fromLocal = await fetchCoachingFromUrl(`data/coaching_vagamundos.json?ts=${Date.now()}`);
+      if (fromLocal?.length) {
+        coaching = fromLocal;
+        return;
+      }
+    } catch (error) {
+      console.warn("No se pudo leer coaching local.", error);
+    }
   }
 
   async function refreshCoachingSha() {
@@ -747,9 +799,16 @@
 
   function renderCoachingAdmin() {
     const listEl = document.getElementById("coaching-list");
+    const countEl = document.getElementById("coaching-count");
     if (!listEl) return;
 
     listEl.innerHTML = "";
+    if (countEl) {
+      countEl.textContent = coaching.length
+        ? `${coaching.length} servicio${coaching.length === 1 ? "" : "s"} publicado${coaching.length === 1 ? "" : "s"}`
+        : "";
+    }
+
     if (!coaching.length) {
       listEl.innerHTML = `<p class="empty-note">No hay servicios todavía. Crea el primero abajo.</p>`;
       return;
@@ -771,6 +830,12 @@
         const activity = document.createElement("p");
         activity.textContent = item.actividad_economica;
         card.appendChild(activity);
+      }
+
+      if (item.celular) {
+        const phone = document.createElement("p");
+        phone.textContent = `Cel. ${item.celular}`;
+        card.appendChild(phone);
       }
 
       if (item.descuento) {
