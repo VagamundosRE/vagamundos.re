@@ -47,9 +47,21 @@
       <section class="panel">
         <h2>1. Programación</h2>
         <p>
-          La carpeta <code>assets/programacion</code> es la fuente: no hace falta editar
-          <code>content.json</code>. Puedes agregar, cambiar, quitar o reemplazar todo.
+          Sube las imágenes del carrete, ordénalas con las flechas y define el periodo que se muestra en el sitio
+          (reemplaza el texto de “Actualizado”).
         </p>
+
+        <label>
+          Periodo / etiqueta
+          <input
+            type="text"
+            id="prog-periodo"
+            placeholder="Ej. Programación Enero - Abril 2027"
+          />
+        </label>
+        <div class="actions" style="margin-top: 0.75rem">
+          <button class="btn btn-primary" type="button" id="btn-save-periodo">Guardar periodo</button>
+        </div>
 
         <div id="prog-carrete" class="admin-carrete"></div>
         <div class="preview-row" id="prog-slots"></div>
@@ -67,10 +79,10 @@
           <button class="btn btn-danger" type="button" id="btn-clear-prog">Borrar todas</button>
         </div>
         <p class="hint">
-          <strong>Agregar</strong> suma sin borrar las actuales.
-          <strong>Reemplazar todas</strong> borra las de la carpeta y sube las nuevas.
-          <strong>Sincronizar carpeta</strong> vuelve a leer lo que hay en GitHub y actualiza el carrete.
-          <strong>Borrar todas</strong> deja la programación vacía.
+          <strong>Subir / bajar</strong> cambia el orden del carrete sin renombrar archivos.
+          <strong>Agregar</strong> suma al final.
+          <strong>Reemplazar todas</strong> borra las actuales y sube las nuevas en el orden seleccionado.
+          <strong>Sincronizar carpeta</strong> detecta archivos nuevos o borrados y conserva el orden guardado.
         </p>
       </section>
 

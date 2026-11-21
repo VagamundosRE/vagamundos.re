@@ -264,6 +264,10 @@ textarea {
 }
 
 .convenio-admin,
+.prog-slot .actions {
+  flex-wrap: wrap;
+}
+
 .prog-slot {
   display: grid;
   gap: 0.55rem;

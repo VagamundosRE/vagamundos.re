@@ -18,6 +18,7 @@
   let coaching = [];
   let coachingSha = null;
   let programacionImages = [];
+  let programacionPeriodo = "";
 
   function showStatus(el, message, type) {
     el.classList.remove("hidden", "ok", "err");
@@ -116,7 +117,7 @@
     if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
 
     await fetchCoaching();
-    await rebuildProgramacionFromFolder();
+    await loadProgramacionState();
     renderProgramacionAdmin();
     renderConveniosAdmin();
     renderCoachingAdmin();
@@ -228,10 +229,22 @@
     )}/${fullPath}?t=${Date.now()}`;
   }
 
+  function syncPeriodoInput() {
+    const input = document.getElementById("prog-periodo");
+    if (input) input.value = programacionPeriodo || "";
+  }
+
+  function readPeriodoInput() {
+    const input = document.getElementById("prog-periodo");
+    programacionPeriodo = input ? input.value.trim() : programacionPeriodo;
+    return programacionPeriodo;
+  }
+
   function renderProgramacionAdmin() {
     const images = programacionImages;
     const carreteRoot = document.getElementById("prog-carrete");
     progSlots.innerHTML = "";
+    syncPeriodoInput();
 
     if (carreteRoot) {
       if (!images.length) {
@@ -267,10 +280,24 @@
 
       const title = document.createElement("div");
       title.className = "prog-slot-title";
-      title.textContent = `Gestionar imagen ${index + 1}`;
+      title.textContent = `Imagen ${index + 1}`;
 
       const actions = document.createElement("div");
       actions.className = "actions";
+
+      const upBtn = document.createElement("button");
+      upBtn.type = "button";
+      upBtn.className = "btn btn-ghost";
+      upBtn.textContent = "Subir";
+      upBtn.disabled = index === 0;
+      upBtn.addEventListener("click", () => moveProgramacionImage(index, -1));
+
+      const downBtn = document.createElement("button");
+      downBtn.type = "button";
+      downBtn.className = "btn btn-ghost";
+      downBtn.textContent = "Bajar";
+      downBtn.disabled = index === images.length - 1;
+      downBtn.addEventListener("click", () => moveProgramacionImage(index, 1));
 
       const replaceLabel = document.createElement("label");
       replaceLabel.className = "btn btn-ghost file-btn";
@@ -292,11 +319,10 @@
       del.textContent = "Quitar";
       del.addEventListener("click", () => deleteProgramacionImage(index));
 
-      actions.append(replaceLabel, del);
+      actions.append(upBtn, downBtn, replaceLabel, del);
       wrap.append(title, actions);
       progSlots.appendChild(wrap);
     });
-
   }
 
   function toPublicAssetPath(entry) {
@@ -316,18 +342,67 @@
       }));
   }
 
-  async function rebuildProgramacionFromFolder() {
+  function mergeProgramacionOrder(savedImages, folderImages) {
+    const folderByPath = new Map(folderImages.map((item) => [item.path, item]));
+    const ordered = [];
+    const used = new Set();
+
+    (savedImages || []).forEach((item) => {
+      if (!item?.path || !folderByPath.has(item.path) || used.has(item.path)) return;
+      ordered.push({
+        path: item.path,
+        alt: item.alt || `Programación de rodadas ${ordered.length + 1}`,
+      });
+      used.add(item.path);
+    });
+
+    folderImages.forEach((item) => {
+      if (used.has(item.path)) return;
+      ordered.push({
+        path: item.path,
+        alt: `Programación de rodadas ${ordered.length + 1}`,
+      });
+      used.add(item.path);
+    });
+
+    return ordered;
+  }
+
+  async function loadProgramacionState() {
+    let savedImages = [];
+    programacionPeriodo = "";
+
+    try {
+      const manifestPath = withRoot("data/programacion-manifest.json");
+      const file = await Git.getFile({ ...repoArgs(), path: manifestPath });
+      if (file?.content) {
+        const manifest = JSON.parse(Git.decodeBase64Utf8(file.content));
+        savedImages = Array.isArray(manifest.images) ? manifest.images : [];
+        programacionPeriodo = String(manifest.periodo || "").trim();
+      }
+    } catch (error) {
+      console.warn("No se pudo leer el manifiesto de programación.", error);
+    }
+
     const entries = await Git.listDir({
       ...repoArgs(),
       path: withRoot(PROG_DIR),
     });
-    programacionImages = imagesFromFolderListing(entries);
+    const folderImages = imagesFromFolderListing(entries);
+    programacionImages = mergeProgramacionOrder(savedImages, folderImages);
+    syncPeriodoInput();
   }
 
   async function publishProgramacionManifest(message) {
-    await rebuildProgramacionFromFolder();
+    readPeriodoInput();
+    programacionImages = programacionImages.map((img, index) => ({
+      path: img.path,
+      alt: `Programación de rodadas ${index + 1}`,
+    }));
+
     const manifest = {
       updatedAt: new Date().toISOString().slice(0, 10),
+      periodo: programacionPeriodo,
       images: programacionImages,
     };
 
@@ -351,6 +426,51 @@
       message: `${message} (respaldo local)`,
       sha: existingJs?.sha,
     });
+  }
+
+  async function saveProgramacionPeriodo() {
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      await publishProgramacionManifest("Actualizar periodo de programación");
+      showStatus(
+        globalStatus,
+        programacionPeriodo
+          ? `Periodo guardado: ${programacionPeriodo}`
+          : "Periodo vaciado. En el sitio no se mostrará etiqueta.",
+        "ok"
+      );
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function moveProgramacionImage(index, delta) {
+    const next = index + delta;
+    if (next < 0 || next >= programacionImages.length) return;
+
+    const arr = [...programacionImages];
+    const temp = arr[index];
+    arr[index] = arr[next];
+    arr[next] = temp;
+    programacionImages = arr;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    showStatus(globalStatus, "Guardando orden…", "ok");
+    try {
+      await publishProgramacionManifest("Reordenar imágenes de programación");
+      renderProgramacionAdmin();
+      showStatus(globalStatus, "Orden actualizado en el carrete.", "ok");
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+      await loadProgramacionState();
+      renderProgramacionAdmin();
+    } finally {
+      setBusy(false);
+    }
   }
 
   function renderConveniosAdmin() {
@@ -460,18 +580,24 @@
 
     try {
       const stamp = Date.now();
+      const added = [];
       for (let i = 0; i < files.length; i += 1) {
         const file = files[i];
         const ext = Git.extensionFromFile(file);
         const relative = `${PROG_DIR}/programa-${stamp}-${i + 1}.${ext}`;
         await uploadBinary(withRoot(relative), file, `Agregar programación ${i + 1}`);
+        added.push({
+          path: relative,
+          alt: `Programación de rodadas ${programacionImages.length + added.length + 1}`,
+        });
       }
 
+      programacionImages = [...programacionImages, ...added];
       await publishProgramacionManifest(`Agregar ${files.length} imagen(es) de programación`);
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        `${files.length} imagen(es) agregada(s). El sitio puede tardar 1–2 min.`,
+        `${files.length} imagen(es) agregada(s) al final. Usa Subir/Bajar para ordenar. El sitio puede tardar 1–2 min.`,
         "ok"
       );
     } catch (error) {
@@ -495,13 +621,17 @@
       await uploadBinary(withRoot(relative), file, `Cambiar programación ${index + 1}`);
 
       const oldPath = current.path;
+      programacionImages[index] = {
+        path: relative,
+        alt: `Programación de rodadas ${index + 1}`,
+      };
       if (oldPath && oldPath !== relative) await removeRepoFile(oldPath);
 
       await publishProgramacionManifest(`Cambiar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        `Imagen ${index + 1} actualizada. Las demás no se tocaron.`,
+        `Imagen ${index + 1} actualizada. El orden se mantuvo.`,
         "ok"
       );
     } catch (error) {
@@ -522,6 +652,7 @@
 
     try {
       await removeRepoFile(current.path);
+      programacionImages.splice(index, 1);
       await publishProgramacionManifest(`Quitar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
       showStatus(globalStatus, "Imagen eliminada.", "ok");
@@ -542,7 +673,7 @@
     const currentCount = programacionImages.length;
     const confirmMsg =
       currentCount > 0
-        ? `Esto borrará las ${currentCount} imagen(es) actuales y dejará ${selected.length} nueva(s). ¿Continuar?`
+        ? `Esto borrará las ${currentCount} imagen(es) actuales y dejará ${selected.length} nueva(s) en el orden seleccionado. ¿Continuar?`
         : `Se publicarán ${selected.length} imagen(es) de programación. ¿Continuar?`;
     if (!confirm(confirmMsg)) return;
 
@@ -553,12 +684,17 @@
     try {
       const oldImages = [...programacionImages];
       const stamp = Date.now();
+      const nextImages = [];
 
       for (let i = 0; i < selected.length; i += 1) {
         const file = selected[i];
         const ext = Git.extensionFromFile(file);
         const relative = `${PROG_DIR}/programa-${stamp}-${i + 1}.${ext}`;
         await uploadBinary(withRoot(relative), file, `Reemplazar programación ${i + 1}`);
+        nextImages.push({
+          path: relative,
+          alt: `Programación de rodadas ${i + 1}`,
+        });
       }
 
       for (const old of oldImages) {
@@ -574,11 +710,12 @@
         await removeRepoFile(toPublicAssetPath(entry));
       }
 
+      programacionImages = nextImages;
       await publishProgramacionManifest("Reemplazar programación de rodadas");
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        `${selected.length} imagen(es) publicadas. El sitio puede tardar 1–2 minutos.`,
+        `${selected.length} imagen(es) publicadas en ese orden. El sitio puede tardar 1–2 minutos.`,
         "ok"
       );
     } catch (error) {
@@ -593,11 +730,12 @@
     clearStatus(globalStatus);
     showStatus(globalStatus, "Sincronizando carpeta de programación…", "ok");
     try {
+      await loadProgramacionState();
       await publishProgramacionManifest("Sincronizar programación desde carpeta");
       renderProgramacionAdmin();
       showStatus(
         globalStatus,
-        `Carpeta sincronizada · ${programacionImages.length} imagen(es) en el carrete.`,
+        `Carpeta sincronizada · ${programacionImages.length} imagen(es) · orden conservado.`,
         "ok"
       );
     } catch (error) {
@@ -624,6 +762,7 @@
         if (entry.type !== "file" || !Git.isImagePath(entry.name)) continue;
         await removeRepoFile(toPublicAssetPath(entry));
       }
+      programacionImages = [];
       await publishProgramacionManifest("Borrar toda la programación");
       renderProgramacionAdmin();
       showStatus(globalStatus, "Programación vaciada.", "ok");
@@ -1139,6 +1278,7 @@
 
   document.getElementById("btn-sync-prog").addEventListener("click", syncProgramacionFolder);
   document.getElementById("btn-clear-prog").addEventListener("click", clearAllProgramacion);
+  document.getElementById("btn-save-periodo").addEventListener("click", saveProgramacionPeriodo);
 
   document.getElementById("site-password").addEventListener("keydown", (e) => {
     if (e.key === "Enter") login();

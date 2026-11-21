@@ -64,14 +64,16 @@
   function renderProgramacionGallery(manifest) {
     const updated = document.getElementById("prog-updated");
     const images = Array.isArray(manifest?.images) ? manifest.images : [];
+    const periodo = String(manifest?.periodo || "").trim();
 
-    if (updated && manifest?.updatedAt) {
-      const date = new Date(`${manifest.updatedAt}T12:00:00`);
-      updated.hidden = false;
-      updated.textContent = `Actualizado · ${date.toLocaleDateString("es-CO", {
-        year: "numeric",
-        month: "long",
-      })}`;
+    if (updated) {
+      if (periodo) {
+        updated.hidden = false;
+        updated.textContent = periodo;
+      } else {
+        updated.hidden = true;
+        updated.textContent = "";
+      }
     }
 
     gallery.innerHTML = "";
@@ -521,25 +523,41 @@
   }
 
   function setupReveals() {
-    const nodes = document.querySelectorAll(".reveal");
+    const nodes = [...document.querySelectorAll(".reveal")];
+    if (!nodes.length) return;
+
+    const show = (node) => node.classList.add("is-visible");
+
     if (!("IntersectionObserver" in window)) {
-      nodes.forEach((node) => node.classList.add("is-visible"));
+      nodes.forEach(show);
       return;
     }
 
+    // Solo títulos de sección usan .reveal (las grillas altas ya no).
+    // threshold 0 + margen amplio: se activa apenas el bloque se acerca al viewport.
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
+          if (entry.isIntersecting || entry.intersectionRatio > 0) {
+            show(entry.target);
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0, rootMargin: "10% 0px 10% 0px" }
     );
 
     nodes.forEach((node) => observer.observe(node));
+
+    // Failsafe: si algo quedó oculto, mostrarlo al interactuar o tras un momento.
+    const revealPending = () => {
+      nodes.forEach((node) => {
+        if (!node.classList.contains("is-visible")) show(node);
+      });
+    };
+    window.setTimeout(revealPending, 2500);
+    window.addEventListener("scroll", revealPending, { once: true, passive: true });
+    window.addEventListener("touchstart", revealPending, { once: true, passive: true });
   }
 
   async function loadContent() {
