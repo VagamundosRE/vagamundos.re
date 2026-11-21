@@ -4,7 +4,7 @@
   "bloques": [
     {
       "titulo": "SOAT",
-      "texto": "Cómpralo directamente en las páginas oficiales de las compañías de seguro.",
+      "texto": "Cómpralo directamente en las páginas oficiales de las compañías de seguros.",
       "links": [
         {
           "label": "Seguros Mundial",
@@ -26,14 +26,14 @@
       "titulo": "Llantas — Himalayan 411",
       "items": [
         "Trasera: 120 - 90 / R 17",
-        "Delantera: 90 - 90 / R21"
+        "Delantera: 90 - 90 / R 21"
       ]
     },
     {
       "titulo": "Llantas — Himalayan 450",
       "items": [
         "Trasera: 140 - 80 / R 17",
-        "Delantera: 90 - 90 / R21"
+        "Delantera: 90 - 90 / R 21"
       ]
     },
     {
@@ -51,7 +51,7 @@
       "titulo": "Referencia neumáticos — 411 y 450",
       "items": [
         "Trasero: 350-410 / 17",
-        "Si tiene llanta 140 o 150 la ref. debe ser 410-450 / 17",
+        "Si tiene llanta 140 o 150, la ref. debe ser 410-450 / 17",
         "Delantero: 275-300 / 21"
       ]
     },

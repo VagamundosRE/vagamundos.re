@@ -294,6 +294,15 @@
   function formatRegionLabel(region) {
     const raw = String(region || "").trim();
     if (!raw) return "Sin ciudad";
+    const labels = {
+      CALI: "Cali",
+      "EJE CAFETERO": "Eje cafetero",
+      POPAYAN: "Popayán",
+      PASTO: "Pasto",
+      BOGOTA: "Bogotá",
+      MEDELLIN: "Medellín",
+    };
+    if (labels[raw.toUpperCase()]) return labels[raw.toUpperCase()];
     return raw
       .toLowerCase()
       .split(/\s+/)

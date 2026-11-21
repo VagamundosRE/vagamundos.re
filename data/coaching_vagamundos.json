@@ -1,15 +1,15 @@
 [
   {
-    "nombre_piloto": "Jhon Diaz Cardona (jhonjeins)",
-    "nombre_negocio": "Ingenieria y Web",
-    "actividad_economica": "Desarrollo de paginas web, topografia y servicios de dron",
+    "nombre_piloto": "Jhon Díaz Cardona (jhonjeins)",
+    "nombre_negocio": "Ingeniería y Web",
+    "actividad_economica": "Desarrollo de páginas web, topografía y servicios de dron",
     "celular": "3218410345",
     "mail": null,
     "redes_sociales": "IG: @jhonj.cardona",
     "descuento": "Precios especiales según el servicio requerido."
   },
   {
-    "nombre_piloto": "Julian Vargas",
+    "nombre_piloto": "Julián Vargas",
     "nombre_negocio": "Alterius CDC",
     "actividad_economica": "Diseño publicitario para tu negocio",
     "celular": "3187880666",
@@ -20,16 +20,16 @@
   {
     "nombre_piloto": "Mao.D",
     "nombre_negocio": "Mood Crew",
-    "actividad_economica": "Camisetas personalizadas y de serie (Todo tipo de diseño).",
+    "actividad_economica": "Camisetas personalizadas y de serie (todo tipo de diseño).",
     "celular": "3163695018",
     "mail": "maodaravina@gmail.com",
-    "redes_sociales": "IG: @moodcrew00\nTiktok: @maodara",
+    "redes_sociales": "IG: @moodcrew00\nTikTok: @maodara",
     "descuento": null
   },
   {
     "nombre_piloto": "Cristhian Amariles",
     "nombre_negocio": "Amac Store",
-    "actividad_economica": "Venta de Camisetas de Futbol y Deportivas, al x mayor y al detal.",
+    "actividad_economica": "Venta de camisetas de fútbol y deportivas, al por mayor y al detal.",
     "celular": "3332819618",
     "mail": "amacstore4@gmail.com",
     "redes_sociales": "IG: @amacstore",
@@ -38,7 +38,7 @@
   {
     "nombre_piloto": "Jhon Cardona",
     "nombre_negocio": "🏍️ ¡THUNDER BIKES!🔧",
-    "actividad_economica": "Taller Tecnico Especializado en Royal Enfield y todo tipo de motos.",
+    "actividad_economica": "Taller técnico especializado en Royal Enfield y todo tipo de motos.",
     "celular": "3104547161",
     "mail": null,
     "redes_sociales": null,
@@ -47,25 +47,25 @@
   {
     "nombre_piloto": "Omar",
     "nombre_negocio": "Omar Racing y Cascos y Accesorios Monarca",
-    "actividad_economica": "Fabricacion de Defensas y todo tipo de Herrajes para moto / Accesorios para Motociclistas (Cascos, Maleteros, Balaclavas, Guantes, Chaquetas…etc).",
+    "actividad_economica": "Fabricación de defensas y todo tipo de herrajes para moto / Accesorios para motociclistas (cascos, maleteros, balaclavas, guantes, chaquetas, etc.).",
     "celular": "3025936412",
     "mail": "omarracingaccesorios@gmail.com",
-    "redes_sociales": "FB, IG, Tiktok: @omarracingaccesorios",
-    "descuento": "Dependiendo del Herraje entre el 10% y 15%."
+    "redes_sociales": "FB, IG, TikTok: @omarracingaccesorios",
+    "descuento": "Dependiendo del herraje, entre el 10% y 15%."
   },
   {
-    "nombre_piloto": "Denar Castrillon",
+    "nombre_piloto": "Denar Castrillón",
     "nombre_negocio": "La Pizzicleta",
-    "actividad_economica": "Pizzeria y Servicios de Catering",
+    "actividad_economica": "Pizzería y servicios de catering",
     "celular": "3017656339",
     "mail": "denarfilzer@gmail.com",
     "redes_sociales": "IG: @lapizzicleta",
     "descuento": "15%"
   },
   {
-    "nombre_piloto": "Andres Betancourt",
+    "nombre_piloto": "Andrés Betancourt",
     "nombre_negocio": "Santo Chorizo",
-    "actividad_economica": "Restaurante, Servicios de Catering y distribucion al por mayor.",
+    "actividad_economica": "Restaurante, servicios de catering y distribución al por mayor.",
     "celular": "3165339571",
     "mail": "santochorizoartesanal@gmail.com",
     "redes_sociales": "IG: @santochorizocol",
@@ -78,21 +78,21 @@
     "celular": "3012861463",
     "mail": "anderson.arteaga.g@gmail.com",
     "redes_sociales": "IG: @soyeldelasmotoscali",
-    "descuento": "Mano de Obra: 15%.\nRepuestos: 10%.\nLlantas: 10%.\nAccesorios: 5%."
+    "descuento": "Mano de obra: 15%.\nRepuestos: 10%.\nLlantas: 10%.\nAccesorios: 5%."
   },
   {
-    "nombre_piloto": "Juan David Sanchez",
+    "nombre_piloto": "Juan David Sánchez",
     "nombre_negocio": "Sagritop",
-    "actividad_economica": "Topografia (Servicios de Ingenieria).",
+    "actividad_economica": "Topografía (servicios de ingeniería).",
     "celular": "3108574662",
     "mail": "sagritopografia@gmail.com",
-    "redes_sociales": "IG: @sagritop_topografia\nTiktok: sagritop.topograf",
+    "redes_sociales": "IG: @sagritop_topografia\nTikTok: sagritop.topograf",
     "descuento": "20%"
   },
   {
     "nombre_piloto": "Marcela Escobar",
-    "nombre_negocio": "Saman Consultoria",
-    "actividad_economica": "Consultoria en Talento Humano (Consultoria de un solo pago, asesoria para emprendimientos, en temas de contratacion y dar el paso con los primeros empleados.",
+    "nombre_negocio": "Saman Consultoría",
+    "actividad_economica": "Consultoría en talento humano (consultoría de un solo pago, asesoría para emprendimientos en temas de contratación y dar el paso con los primeros empleados).",
     "celular": "3002647721",
     "mail": "marescogar@gmail.com",
     "redes_sociales": null,
@@ -101,25 +101,25 @@
   {
     "nombre_piloto": "Brian Bravo",
     "nombre_negocio": "Brian Bravo",
-    "actividad_economica": "Asesorias en sistemas integrados de gestion, mejora de procesos industriales, gestion vehicular, auditorias en ISO 9001-19011-39001-45001-14001, planes de emergencias, gestion logistica y capacitaciones.",
+    "actividad_economica": "Asesorías en sistemas integrados de gestión, mejora de procesos industriales, gestión vehicular, auditorías en ISO 9001-19011-39001-45001-14001, planes de emergencias, gestión logística y capacitaciones.",
     "celular": "3156987636",
     "mail": "briantbravorodriguez@gmail.com",
-    "redes_sociales": "Linkedin: https://www.linkedin.com/feed/update/urn:li:activity:7518359150268071936/",
+    "redes_sociales": "LinkedIn: https://www.linkedin.com/feed/update/urn:li:activity:7518359150268071936/",
     "descuento": "El porcentaje depende del servicio adquirido."
   },
   {
     "nombre_piloto": "Santiago Salazar",
     "nombre_negocio": "Oneplus",
-    "actividad_economica": "Venta de Telefonia nueva y usada - Reparacion y Mantenimiento - Especializados en Iphone.",
+    "actividad_economica": "Venta de telefonía nueva y usada - Reparación y mantenimiento - Especializados en iPhone.",
     "celular": "3116152120",
     "mail": "santiago-tato1@hotmail.com",
     "redes_sociales": null,
-    "descuento": "10% en Mantenimiento - En equipos depende del modelo, pero se maejan precios favorables para Vagamundos"
+    "descuento": "10% en mantenimiento. En equipos depende del modelo, pero se manejan precios favorables para Vagamundos."
   },
   {
-    "nombre_piloto": "Victor Tobar",
+    "nombre_piloto": "Víctor Tobar",
     "nombre_negocio": "Pulso Cali",
-    "actividad_economica": "Estetica Automotriz, reparacion de golpes leves conservando la pintura original de tu vehiculo, detallado en Autos y Motos con productos especializados.",
+    "actividad_economica": "Estética automotriz, reparación de golpes leves conservando la pintura original de tu vehículo, detallado en autos y motos con productos especializados.",
     "celular": "3185110146",
     "mail": "pulsocalisas@gmail.com",
     "redes_sociales": "FB, IG: @pulsocali",
@@ -128,7 +128,7 @@
   {
     "nombre_piloto": "Diego Lalinde",
     "nombre_negocio": "Saiki Experimental - Jiu Jitsu",
-    "actividad_economica": "Couch de Jiu - Jitsu",
+    "actividad_economica": "Coach de jiu-jitsu",
     "celular": "3167762808",
     "mail": "saikiexperimentaljiujitsu@gmail.com",
     "redes_sociales": "IG: @saikijiujitsucali",
@@ -136,35 +136,35 @@
   },
   {
     "nombre_piloto": "Alex Sarmiento",
-    "nombre_negocio": "Central Genetica Balmoral",
-    "actividad_economica": "Medico Veterinario Especialista en Reproduccion Bovina",
+    "nombre_negocio": "Central Genética Balmoral",
+    "actividad_economica": "Médico veterinario especialista en reproducción bovina",
     "celular": "3165203219",
     "mail": "alexandersarmiento1984@gmail.com",
     "redes_sociales": null,
     "descuento": "10%"
   },
   {
-    "nombre_piloto": "Mauricio Garcia",
+    "nombre_piloto": "Mauricio García",
     "nombre_negocio": "Ala Bendita Chicken",
-    "actividad_economica": "Restaurante-  expertos en Alitas de pollo",
+    "actividad_economica": "Restaurante, expertos en alitas de pollo",
     "celular": "3218534946",
     "mail": "maga2021@hotmail.com",
     "redes_sociales": "IG: @alabenditachicken",
     "descuento": "10%"
   },
   {
-    "nombre_piloto": "Sebastian Garzon",
-    "nombre_negocio": "Garzon Importados",
-    "actividad_economica": "Comercio y distribucion de Zapatillas y Accesorios - Listas de Ventas y envios a Nivel Nacional, al x mayor y al detal.",
+    "nombre_piloto": "Sebastián Garzón",
+    "nombre_negocio": "Garzón Importados",
+    "actividad_economica": "Comercio y distribución de zapatillas y accesorios - Listas de ventas y envíos a nivel nacional, al por mayor y al detal.",
     "celular": "3196047673",
     "mail": "garzonventas1@gmail.com",
     "redes_sociales": "IG: @garzonimportados1 @garzonstoresantuario",
-    "descuento": "Para Vagamundos, precio de Mayorista desde 1 par"
+    "descuento": "Para Vagamundos, precio de mayorista desde 1 par."
   },
   {
-    "nombre_piloto": "Cristian Velasquez",
-    "nombre_negocio": "Nueva Optica Inglesa",
-    "actividad_economica": "Optica",
+    "nombre_piloto": "Cristian Velásquez",
+    "nombre_negocio": "Nueva Óptica Inglesa",
+    "actividad_economica": "Óptica",
     "celular": "3226551285",
     "mail": "crife30@hotmail.com",
     "redes_sociales": "IG: @lainglesaclub",
@@ -176,7 +176,7 @@
     "actividad_economica": "Agencia de Publicidad en Medios Digitales, impulsamos tu negocio a través de contenido en Redes Sociales.",
     "celular": "3022407830",
     "mail": null,
-    "redes_sociales": "IG @withyou_2026",
+    "redes_sociales": "IG: @withyou_2026",
     "descuento": "10% sobre cualquiera de los paquetes."
   }
 ]

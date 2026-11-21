@@ -7,7 +7,7 @@
         {
           "nombre": "🏍️ ¡THUNDER BIKES!🔧",
           "detalles": [
-            "📍 Nueva dirección: Calle 5 #43-20 local 2.",
+            "Nueva dirección: Calle 5 #43-20 local 2.",
             "Jhon Cardona Cel. 3104547161",
             "https://maps.google.com/?q=3.420997,-76.548241"
           ]
@@ -15,7 +15,7 @@
         {
           "nombre": "Royal Enfield Panamericana",
           "detalles": [
-            "Servicio al Cliente: Cel. 3043549030",
+            "Servicio al cliente: Cel. 3043549030",
             "Taller: Cel. 3019424699",
             "Cra. 80 # 10A 11 Local 08 y 10 Centro Comercial Plaza 80"
           ]
@@ -23,7 +23,7 @@
         {
           "nombre": "Royal Enfield Santa Monica",
           "detalles": [
-            "Servicio al Cliente: Cel. 3175729872",
+            "Servicio al cliente: Cel. 3175729872",
             "Taller: Cel. 3173722548",
             "Av. 6A # 26N 45"
           ]
@@ -34,29 +34,29 @@
       "region": "EJE CAFETERO",
       "talleres": [
         {
-          "nombre": "Jairo. Mecánico Autorizado Manizales y Eje Cafetero.",
+          "nombre": "Jairo. Mecánico autorizado Manizales y Eje Cafetero.",
           "detalles": [
-            "Whatsapp: 3117758924"
+            "WhatsApp: 3117758924"
           ]
         },
         {
-          "nombre": "CST 1980 Cesar Lopez. (Sta Rosa - Risaralda).",
+          "nombre": "CST 1980 César López (Sta. Rosa - Risaralda).",
           "detalles": [
-            "Centro Autorizado Royal Enfield - Mecánica y repuestos Royal.",
-            "Whatsapp: 3103989546"
+            "Centro autorizado Royal Enfield - Mecánica y repuestos Royal.",
+            "WhatsApp: 3103989546"
           ]
         },
         {
-          "nombre": "Royal Armenia - Mecánica y Repuestos.",
+          "nombre": "Royal Armenia - Mecánica y repuestos.",
           "detalles": [
-            "Juan David - Whatsapp 3146535524"
+            "Juan David - WhatsApp 3146535524"
           ]
         },
         {
           "nombre": "Partes Royal Armenia: (Diego)",
           "detalles": [
             "www.partesroyal.com.co",
-            "Whatsapp: 3146671824"
+            "WhatsApp: 3146671824"
           ]
         }
       ]
@@ -67,9 +67,9 @@
         {
           "nombre": "Discolmotos.",
           "detalles": [
-            "Servicio de Mantenimiento y reparacion de motocicletas.",
-            "Venta de respuestos y accesorios.",
-            "Popayan - Cra 17 # 8-57",
+            "Servicio de mantenimiento y reparación de motocicletas.",
+            "Venta de repuestos y accesorios.",
+            "Popayán - Cra. 17 # 8-57",
             "Cel. 3006444066"
           ]
         }
@@ -79,7 +79,7 @@
       "region": "PASTO",
       "talleres": [
         {
-          "nombre": "Mecanico Pasto. Ricardo Moto Andina. 3116928678.",
+          "nombre": "Mecánico Pasto. Ricardo Moto Andina. 3116928678.",
           "detalles": []
         }
       ]
@@ -88,18 +88,18 @@
       "region": "BOGOTA",
       "talleres": [
         {
-          "nombre": "Jhon Erick Giraldo. Mecánico (R.E Bogotá).  Cel: 3124714566.",
+          "nombre": "Jhon Erick Giraldo. Mecánico (R.E Bogotá). Cel: 3124714566.",
           "detalles": []
         },
         {
-          "nombre": "Anana Bikers. (Hector Quintero)",
+          "nombre": "Anana Bikers (Héctor Quintero)",
           "detalles": [
             "www.ananabikers.com",
             "WhatsApp: 3124376491"
           ]
         },
         {
-          "nombre": "Jose Mecánico R.E (Bogotá). Whatsapp: 3197590296",
+          "nombre": "José Mecánico R.E (Bogotá). WhatsApp: 3197590296",
           "detalles": []
         }
       ]
@@ -108,7 +108,7 @@
       "region": "MEDELLIN",
       "talleres": [
         {
-          "nombre": "Edwar. Mecánico Medellín. Whatsapp: 3046703327",
+          "nombre": "Edwar. Mecánico Medellín. WhatsApp: 3046703327",
           "detalles": []
         }
       ]
