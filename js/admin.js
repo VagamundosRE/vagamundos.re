@@ -31,12 +31,6 @@
     el.textContent = "";
   }
 
-  async function sha256(text) {
-    const data = new TextEncoder().encode(text);
-    const hash = await crypto.subtle.digest("SHA-256", data);
-    return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
   function withRoot(path) {
     const root = (session.siteRoot || "").replace(/^\/+|\/+$/g, "");
     return root ? `${root}/${path}` : path;
@@ -703,17 +697,10 @@
 
   async function login() {
     clearStatus(loginStatus);
-    const password = document.getElementById("site-password").value.trim();
     const token = document.getElementById("github-token").value.trim();
 
-    if (!password || !token) {
-      showStatus(loginStatus, "Escribe la contraseña y el código de publicación.", "err");
-      return;
-    }
-
-    const hash = await sha256(password);
-    if (hash !== config.passwordHash) {
-      showStatus(loginStatus, "Contraseña incorrecta.", "err");
+    if (!token) {
+      showStatus(loginStatus, "Escribe el código de publicación (token de GitHub).", "err");
       return;
     }
 
@@ -736,8 +723,7 @@
       session = null;
       showStatus(
         loginStatus,
-        "No se pudo conectar. Revisa el código de publicación o avisa a quien administra el sitio.\n" +
-          error.message,
+        "No se pudo conectar. Revisa el token o avisa a quien administra el sitio.\n" + error.message,
         "err"
       );
     } finally {
@@ -753,7 +739,6 @@
     dashboard.classList.add("hidden");
     loginPanel.classList.remove("hidden");
     document.getElementById("github-token").value = "";
-    document.getElementById("site-password").value = "";
     clearStatus(globalStatus);
   }
 
@@ -1208,9 +1193,6 @@
   document.getElementById("btn-clear-prog").addEventListener("click", clearAllProgramacion);
   document.getElementById("btn-save-periodo").addEventListener("click", saveProgramacionPeriodo);
 
-  document.getElementById("site-password").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") login();
-  });
   document.getElementById("github-token").addEventListener("keydown", (e) => {
     if (e.key === "Enter") login();
   });
