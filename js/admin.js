@@ -29,8 +29,30 @@
   }
 
   function clearStatus(el) {
+    if (!el) return;
     el.classList.add("hidden");
     el.textContent = "";
+  }
+
+  function statusEl(section) {
+    return document.getElementById(`status-${section}`) || globalStatus;
+  }
+
+  function clearSectionStatuses(except) {
+    document.querySelectorAll(".section-status").forEach((el) => {
+      if (except && el.id === `status-${except}`) return;
+      clearStatus(el);
+    });
+    if (except !== "global") clearStatus(globalStatus);
+  }
+
+  function flash(section, message, type) {
+    clearSectionStatuses(section);
+    const el = statusEl(section);
+    showStatus(el, message, type);
+    if (el && el !== globalStatus) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }
 
   function withRoot(path) {
@@ -504,18 +526,18 @@
 
   async function saveProgramacionPeriodo() {
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("programacion"));
     try {
       await publishProgramacionManifest("Actualizar periodo de programación");
-      showStatus(
-        globalStatus,
+      flash(
+        "programacion",
         programacionPeriodo
           ? `Periodo guardado: ${programacionPeriodo}`
           : "Periodo vaciado. En el sitio no se mostrará etiqueta.",
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -618,13 +640,13 @@
   async function addProgramacionImages(fileList) {
     const files = [...fileList].filter(Boolean);
     if (!files.length) {
-      showStatus(globalStatus, "Elige una o más imágenes.", "err");
+      flash("programacion", "Elige una o más imágenes.", "err");
       return;
     }
 
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, `Agregando ${files.length} imagen(es)…`, "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", `Agregando ${files.length} imagen(es)…`, "ok");
 
     try {
       await rebuildProgramacionFromFolder();
@@ -639,13 +661,13 @@
 
       await publishProgramacionManifest(`Agregar ${files.length} imagen(es) de programación`);
       renderProgramacionAdmin();
-      showStatus(
-        globalStatus,
+      flash(
+        "programacion",
         `${files.length} imagen(es) agregada(s) como programa-${padProgIndex(start)}… El sitio puede tardar 1–2 min.`,
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -656,8 +678,8 @@
     if (!current) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, `Cambiando imagen ${index + 1}…`, "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", `Cambiando imagen ${index + 1}…`, "ok");
 
     try {
       const ext = Git.extensionFromFile(file);
@@ -669,9 +691,9 @@
 
       await publishProgramacionManifest(`Cambiar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
-      showStatus(globalStatus, `Imagen ${index + 1} actualizada (${progFileName(index + 1, ext)}).`, "ok");
+      flash("programacion", `Imagen ${index + 1} actualizada (${progFileName(index + 1, ext)}).`, "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -683,20 +705,20 @@
     if (!confirm(`¿Quitar la imagen ${index + 1} de la programación?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, "Quitando imagen…", "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", "Quitando imagen…", "ok");
 
     try {
       await removeRepoFile(current.path);
       await publishProgramacionManifest(`Quitar imagen de programación ${index + 1}`);
       renderProgramacionAdmin();
-      showStatus(
-        globalStatus,
+      flash(
+        "programacion",
         "Imagen eliminada. Si el orden quedó raro, usa “Reemplazar todas” y súbelas numeradas.",
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -705,7 +727,7 @@
   async function replaceAllProgramacion(files) {
     const selected = [...files].filter(Boolean);
     if (!selected.length) {
-      showStatus(globalStatus, "Elige una o más imágenes.", "err");
+      flash("programacion", "Elige una o más imágenes.", "err");
       return;
     }
 
@@ -717,8 +739,8 @@
     if (!confirm(confirmMsg)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, "Reemplazando programación…", "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", "Reemplazando programación…", "ok");
 
     try {
       const oldImages = [...programacionImages];
@@ -749,13 +771,13 @@
 
       await publishProgramacionManifest("Reemplazar programación de rodadas");
       renderProgramacionAdmin();
-      showStatus(
-        globalStatus,
+      flash(
+        "programacion",
         `${selected.length} imagen(es) como programa-01…${padProgIndex(selected.length)}. El sitio puede tardar 1–2 min.`,
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -763,19 +785,19 @@
 
   async function syncProgramacionFolder() {
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, "Sincronizando carpeta de programación…", "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", "Sincronizando carpeta de programación…", "ok");
     try {
       await loadProgramacionState();
       await publishProgramacionManifest("Sincronizar programación desde carpeta");
       renderProgramacionAdmin();
-      showStatus(
-        globalStatus,
+      flash(
+        "programacion",
         `Carpeta sincronizada · ${programacionImages.length} imagen(es) ordenadas por nombre.`,
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -784,14 +806,14 @@
   async function clearAllProgramacion() {
     const currentCount = programacionImages.length;
     if (!currentCount) {
-      showStatus(globalStatus, "No hay imágenes para borrar.", "err");
+      flash("programacion", "No hay imágenes para borrar.", "err");
       return;
     }
     if (!confirm(`¿Borrar las ${currentCount} imagen(es) de programación?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
-    showStatus(globalStatus, "Borrando programación…", "ok");
+    clearStatus(statusEl("programacion"));
+    flash("programacion", "Borrando programación…", "ok");
     try {
       const entries = await Git.listDir({ ...repoArgs(), path: withRoot(PROG_DIR) });
       for (const entry of entries) {
@@ -801,9 +823,9 @@
       programacionImages = [];
       await publishProgramacionManifest("Borrar toda la programación");
       renderProgramacionAdmin();
-      showStatus(globalStatus, "Programación vaciada.", "ok");
+      flash("programacion", "Programación vaciada.", "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("programacion", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -860,12 +882,12 @@
     const file = document.getElementById("convenio-file").files[0];
     const titulo = document.getElementById("convenio-titulo").value.trim() || "Convenio";
     if (!file) {
-      showStatus(globalStatus, "Elige la imagen del convenio.", "err");
+      flash("convenios", "Elige la imagen del convenio.", "err");
       return;
     }
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("convenios"));
     try {
       const ext = Git.extensionFromFile(file);
       const id = `convenio-${Git.slugify(titulo)}-${Date.now()}`;
@@ -884,13 +906,13 @@
       document.getElementById("convenio-file").value = "";
       document.getElementById("convenio-titulo").value = "";
       renderConveniosAdmin();
-      showStatus(
-        globalStatus,
+      flash(
+        "convenios",
         "Convenio agregado. El sitio público puede tardar 1–2 minutos en actualizarse.",
         "ok"
       );
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("convenios", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -902,15 +924,15 @@
     if (!confirm(`¿Quitar el convenio "${item.titulo || id}"?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("convenios"));
     try {
       await removeRepoFile(item.path);
       content.convenios = content.convenios.filter((c) => c.id !== id);
       await commitContent(`Quitar convenio ${item.titulo || id}`);
       renderConveniosAdmin();
-      showStatus(globalStatus, "Convenio eliminado.", "ok");
+      flash("convenios", "Convenio eliminado.", "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("convenios", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1035,37 +1057,37 @@
   async function saveCoachingItem() {
     const item = parseCoachingForm();
     if (!item.nombre_piloto || !item.nombre_negocio) {
-      showStatus(globalStatus, "Completa el nombre del piloto y del negocio.", "err");
+      flash("servicios", "Completa el nombre del piloto y del negocio.", "err");
       return;
     }
     if (!item.actividad_economica) {
-      showStatus(globalStatus, "Describe la actividad económica.", "err");
+      flash("servicios", "Describe la actividad económica.", "err");
       return;
     }
     if (!item.celular) {
-      showStatus(globalStatus, "Agrega un celular de contacto.", "err");
+      flash("servicios", "Agrega un celular de contacto.", "err");
       return;
     }
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("servicios"));
     try {
       const editIndex = document.getElementById("coaching-edit-index").value;
       if (editIndex === "") {
         coaching.push(item);
         await commitCoaching(`Agregar servicio: ${item.nombre_negocio}`);
-        showStatus(globalStatus, "Servicio agregado.", "ok");
+        flash("servicios", "Servicio agregado.", "ok");
       } else {
         const index = Number(editIndex);
         coaching[index] = item;
         await commitCoaching(`Actualizar servicio: ${item.nombre_negocio}`);
-        showStatus(globalStatus, "Servicio actualizado.", "ok");
+        flash("servicios", "Servicio actualizado.", "ok");
       }
 
       clearCoachingForm();
       renderCoachingAdmin();
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("servicios", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1077,15 +1099,15 @@
     if (!confirm(`¿Quitar el servicio "${item.nombre_negocio || index}"?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("servicios"));
     try {
       coaching.splice(index, 1);
       await commitCoaching(`Quitar servicio: ${item.nombre_negocio || index}`);
       if (document.getElementById("coaching-edit-index").value === String(index)) clearCoachingForm();
       renderCoachingAdmin();
-      showStatus(globalStatus, "Servicio eliminado.", "ok");
+      flash("servicios", "Servicio eliminado.", "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("servicios", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1293,16 +1315,16 @@
   async function saveTallerItem() {
     const parsed = parseTallerForm();
     if (!parsed.region) {
-      showStatus(globalStatus, "Escribe la ciudad o región del taller.", "err");
+      flash("talleres", "Escribe la ciudad o región del taller.", "err");
       return;
     }
     if (!parsed.taller.nombre) {
-      showStatus(globalStatus, "Escribe el nombre del taller.", "err");
+      flash("talleres", "Escribe el nombre del taller.", "err");
       return;
     }
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("talleres"));
     try {
       const editKey = document.getElementById("taller-edit-key").value;
 
@@ -1310,7 +1332,7 @@
         const region = ensureRegion(parsed.region);
         region.talleres.push(parsed.taller);
         await commitTalleres(`Agregar taller: ${parsed.taller.nombre}`);
-        showStatus(globalStatus, "Taller agregado.", "ok");
+        flash("talleres", "Taller agregado.", "ok");
       } else {
         const [regionIndexRaw, tallerIndexRaw] = editKey.split(":");
         const regionIndex = Number(regionIndexRaw);
@@ -1332,13 +1354,13 @@
         }
 
         await commitTalleres(`Actualizar taller: ${parsed.taller.nombre}`);
-        showStatus(globalStatus, "Taller actualizado.", "ok");
+        flash("talleres", "Taller actualizado.", "ok");
       }
 
       clearTallerForm();
       renderTalleresAdmin();
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("talleres", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1351,7 +1373,7 @@
     if (!confirm(`¿Quitar el taller "${taller.nombre || tallerIndex}"?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("talleres"));
     try {
       region.talleres.splice(tallerIndex, 1);
       cleanupEmptyRegions();
@@ -1360,9 +1382,9 @@
         clearTallerForm();
       }
       renderTalleresAdmin();
-      showStatus(globalStatus, "Taller eliminado.", "ok");
+      flash("talleres", "Taller eliminado.", "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("talleres", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1502,16 +1524,16 @@
   async function saveInfoBlock() {
     const block = parseInfoForm();
     if (!block.titulo) {
-      showStatus(globalStatus, "Escribe un título para el bloque.", "err");
+      flash("info", "Escribe un título para el bloque.", "err");
       return;
     }
     if (!block.texto && !(block.items && block.items.length) && !(block.links && block.links.length)) {
-      showStatus(globalStatus, "Agrega al menos un texto, una lista o un enlace.", "err");
+      flash("info", "Agrega al menos un texto, una lista o un enlace.", "err");
       return;
     }
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("info"));
     try {
       content.info = content.info || {
         titulo: "Información relevante",
@@ -1524,18 +1546,18 @@
       if (editIndex === "") {
         content.info.bloques.push(block);
         await commitContent(`Agregar info: ${block.titulo}`);
-        showStatus(globalStatus, "Bloque agregado.", "ok");
+        flash("info", "Bloque agregado.", "ok");
       } else {
         const index = Number(editIndex);
         content.info.bloques[index] = block;
         await commitContent(`Actualizar info: ${block.titulo}`);
-        showStatus(globalStatus, "Bloque actualizado.", "ok");
+        flash("info", "Bloque actualizado.", "ok");
       }
 
       clearInfoForm();
       renderInfoAdmin();
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("info", error.message, "err");
     } finally {
       setBusy(false);
     }
@@ -1547,15 +1569,15 @@
     if (!confirm(`¿Quitar el bloque "${block.titulo || index}"?`)) return;
 
     setBusy(true);
-    clearStatus(globalStatus);
+    clearStatus(statusEl("info"));
     try {
       content.info.bloques.splice(index, 1);
       await commitContent(`Quitar info: ${block.titulo || index}`);
       if (document.getElementById("info-edit-index").value === String(index)) clearInfoForm();
       renderInfoAdmin();
-      showStatus(globalStatus, "Bloque eliminado.", "ok");
+      flash("info", "Bloque eliminado.", "ok");
     } catch (error) {
-      showStatus(globalStatus, error.message, "err");
+      flash("info", error.message, "err");
     } finally {
       setBusy(false);
     }

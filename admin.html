@@ -38,14 +38,24 @@
         <p id="session-info">Listo para publicar</p>
         <button class="btn btn-ghost" type="button" id="btn-logout">Salir</button>
       </div>
+
+      <nav class="admin-jump" aria-label="Secciones del admin">
+        <a href="#sec-programacion">Programación</a>
+        <a href="#sec-convenios">Convenios</a>
+        <a href="#sec-servicios">Servicios</a>
+        <a href="#sec-talleres">Talleres</a>
+        <a href="#sec-info">Info</a>
+      </nav>
+
       <div class="status hidden" id="global-status"></div>
 
-      <section class="panel">
+      <section class="panel" id="sec-programacion">
         <h2>1. Programación</h2>
         <p>
           El orden del carrete sigue el nombre del archivo (<code>programa-01</code>, <code>programa-02</code>…).
           Al subir varias, selecciona las imágenes en el orden deseado; el admin las numera automáticamente.
         </p>
+        <div class="status hidden section-status" id="status-programacion" data-section="programacion"></div>
 
         <label>
           Periodo / etiqueta
@@ -81,9 +91,10 @@
         </p>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="sec-convenios">
         <h2>2. Convenios</h2>
         <p>Agrega un convenio nuevo. Los anteriores se mantienen.</p>
+        <div class="status hidden section-status" id="status-convenios" data-section="convenios"></div>
 
         <label>
           Nombre (opcional)
@@ -103,9 +114,10 @@
         <div class="preview-row" id="convenios-list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="sec-servicios">
         <h2>3. Banco de servicios</h2>
         <p>Agrega o edita servicios de pilotos del grupo (negocios, contacto y descuentos).</p>
+        <div class="status hidden section-status" id="status-servicios" data-section="servicios"></div>
 
         <h3 class="list-title" style="margin-top: 0.5rem">
           Servicios publicados
@@ -157,9 +169,10 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="sec-talleres">
         <h2>4. Talleres recomendados</h2>
         <p>Agrega o edita talleres por ciudad. El celular y el enlace de Maps se convierten en botones en el sitio.</p>
+        <div class="status hidden section-status" id="status-talleres" data-section="talleres"></div>
 
         <h3 class="list-title" style="margin-top: 0.5rem">
           Talleres publicados
@@ -211,9 +224,10 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="sec-info">
         <h2>5. Información relevante</h2>
         <p>Agrega o edita bloques de ayuda (SOAT, referencias técnicas, etc.).</p>
+        <div class="status hidden section-status" id="status-info" data-section="info"></div>
 
         <h3 class="list-title" style="margin-top: 0.5rem">Bloques publicados</h3>
         <div id="info-list" class="info-admin-list"></div>
