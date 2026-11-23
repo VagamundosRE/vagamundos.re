@@ -187,5 +187,23 @@
     "mail": "conta.nel2024@gmail.com",
     "redes_sociales": null,
     "descuento": "Según servicio se puede ofrecer entre 10 a 20% según el servicio a contratar."
+  },
+  {
+    "nombre_piloto": "Ruben Vargas",
+    "nombre_negocio": "Vulcanizadora a domicilio las 24 horas",
+    "actividad_economica": "* Despinchada de Motos y Carros.\n* ⁠Iniciación de Baterías.",
+    "celular": "3008248480",
+    "mail": null,
+    "redes_sociales": "⁠@bicicleteriayvulcanizadora",
+    "descuento": "⁠Descuento de $5.000"
+  },
+  {
+    "nombre_piloto": "Rigoberto",
+    "nombre_negocio": "Crimar Grúa 24/7.",
+    "actividad_economica": "* Servicio de Grúa de Moto las 24/7, se reciben todos los medios de pago.\n* ⁠Servicio en el Valle y Eje Cafetero.",
+    "celular": "3147664637",
+    "mail": null,
+    "redes_sociales": null,
+    "descuento": "⁠Descuento 10%."
   }
 ]
