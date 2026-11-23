@@ -196,5 +196,14 @@ window.VAGAMUNDOS_COACHING = [
     "mail": null,
     "redes_sociales": "⁠@bicicleteriayvulcanizadora",
     "descuento": "⁠Descuento de $5.000"
+  },
+  {
+    "nombre_piloto": "Rigoberto",
+    "nombre_negocio": "Crimar Grúa 24/7.",
+    "actividad_economica": "* Servicio de Grúa de Moto las 24/7, se reciben todos los medios de pago.\n* ⁠Servicio en el Valle y Eje Cafetero.",
+    "celular": "3147664637",
+    "mail": null,
+    "redes_sociales": null,
+    "descuento": "⁠Descuento 10%."
   }
 ];
