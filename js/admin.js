@@ -17,6 +17,8 @@
   let contentSha = null;
   let coaching = [];
   let coachingSha = null;
+  let talleresData = { hoja: "Talleres", regiones: [] };
+  let talleresSha = null;
   let programacionImages = [];
   let programacionPeriodo = "";
 
@@ -111,14 +113,21 @@
     if (!Array.isArray(content.info.bloques)) content.info.bloques = [];
 
     await fetchCoaching();
+    await fetchTalleres();
     await loadProgramacionState();
     renderProgramacionAdmin();
     renderConveniosAdmin();
     renderCoachingAdmin();
+    renderTalleresAdmin();
     renderInfoAdmin();
-    sessionInfo.textContent = coaching.length
-      ? `Conectado · ${coaching.length} servicios listos para editar`
-      : "Conectado · puedes publicar cambios";
+    const talleresCount = countTalleres();
+    sessionInfo.textContent = [
+      coaching.length ? `${coaching.length} servicios` : null,
+      talleresCount ? `${talleresCount} talleres` : null,
+    ]
+      .filter(Boolean)
+      .join(" · ")
+      .replace(/^(.*)$/, (m) => (m ? `Conectado · ${m}` : "Conectado · puedes publicar cambios"));
   }
 
   function normalizeCoachingList(parsed) {
@@ -206,6 +215,111 @@
     const dataJsPath = withRoot("js/coaching-data.js");
     const existingJs = await Git.getFile({ ...repoArgs(), path: dataJsPath });
     const dataJs = `window.VAGAMUNDOS_COACHING = ${JSON.stringify(coaching, null, 2)};\n`;
+    await Git.putFile({
+      ...repoArgs(),
+      path: dataJsPath,
+      contentBase64: Git.textToBase64(dataJs),
+      message: `${message} (respaldo local)`,
+      sha: existingJs?.sha,
+    });
+  }
+
+  function normalizeTalleresData(parsed) {
+    if (!parsed || typeof parsed !== "object") {
+      return { hoja: "Talleres", regiones: [] };
+    }
+    return {
+      hoja: parsed.hoja || "Talleres",
+      regiones: Array.isArray(parsed.regiones) ? parsed.regiones : [],
+    };
+  }
+
+  function countTalleres() {
+    return (talleresData.regiones || []).reduce(
+      (sum, region) => sum + (Array.isArray(region.talleres) ? region.talleres.length : 0),
+      0
+    );
+  }
+
+  async function fetchTalleresFromUrl(url) {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return normalizeTalleresData(await response.json());
+  }
+
+  async function fetchTalleres() {
+    const path = withRoot("data/talleres.json");
+    talleresData = { hoja: "Talleres", regiones: [] };
+    talleresSha = null;
+
+    try {
+      const file = await Git.getFile({ ...repoArgs(), path });
+      if (file?.sha) talleresSha = file.sha;
+
+      if (file?.content) {
+        talleresData = normalizeTalleresData(JSON.parse(Git.decodeBase64Utf8(file.content)));
+        if (countTalleres()) return;
+      }
+
+      if (file?.download_url) {
+        const fromDownload = await fetchTalleresFromUrl(
+          `${file.download_url}${file.download_url.includes("?") ? "&" : "?"}ts=${Date.now()}`
+        );
+        if (fromDownload && fromDownload.regiones.length) {
+          talleresData = fromDownload;
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn("No se pudo leer talleres desde la API de GitHub.", error);
+    }
+
+    const rawUrl = `https://raw.githubusercontent.com/${session.owner}/${session.repo}/${encodeURIComponent(
+      session.branch
+    )}/${path}?ts=${Date.now()}`;
+
+    try {
+      const fromRaw = await fetchTalleresFromUrl(rawUrl);
+      if (fromRaw && fromRaw.regiones.length) {
+        talleresData = fromRaw;
+        return;
+      }
+    } catch (error) {
+      console.warn("No se pudo leer talleres desde raw.githubusercontent.", error);
+    }
+
+    try {
+      const fromLocal = await fetchTalleresFromUrl(`data/talleres.json?ts=${Date.now()}`);
+      if (fromLocal) talleresData = fromLocal;
+    } catch (error) {
+      console.warn("No se pudo leer talleres local.", error);
+    }
+  }
+
+  async function refreshTalleresSha() {
+    const path = withRoot("data/talleres.json");
+    const file = await Git.getFile({ ...repoArgs(), path });
+    talleresSha = file?.sha || null;
+  }
+
+  async function commitTalleres(message) {
+    await refreshTalleresSha();
+    const payload = normalizeTalleresData(talleresData);
+    talleresData = payload;
+    const jsonText = `${JSON.stringify(payload, null, 2)}\n`;
+    const path = withRoot("data/talleres.json");
+    const result = await Git.putFile({
+      ...repoArgs(),
+      path,
+      contentBase64: Git.textToBase64(jsonText),
+      message,
+      sha: talleresSha,
+    });
+    talleresSha = result.content.sha;
+
+    const dataJsPath = withRoot("js/talleres-data.js");
+    const existingJs = await Git.getFile({ ...repoArgs(), path: dataJsPath });
+    const dataJs = `window.VAGAMUNDOS_TALLERES = ${JSON.stringify(payload, null, 2)};\n`;
     await Git.putFile({
       ...repoArgs(),
       path: dataJsPath,
@@ -977,6 +1091,283 @@
     }
   }
 
+  function normalizeRegionName(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toUpperCase();
+  }
+
+  function extractTallerExtras(detalles) {
+    const lines = Array.isArray(detalles) ? detalles.map((line) => String(line || "").trim()).filter(Boolean) : [];
+    let celular = "";
+    let enlace = "";
+    const rest = [];
+
+    lines.forEach((line) => {
+      const urlMatch = line.match(/https?:\/\/[^\s)]+/i);
+      if (urlMatch && !enlace && (/maps\.google|goo\.gl\/maps|maps\.app/i.test(urlMatch[0]) || /^https?:\/\//i.test(line.trim()))) {
+        enlace = urlMatch[0];
+        const leftover = line.replace(urlMatch[0], "").trim();
+        if (leftover) rest.push(leftover);
+        return;
+      }
+
+      const phoneMatch = line.match(/(?:\+?\d[\d\s().-]{7,}\d)/);
+      if (phoneMatch && !celular && /whatsapp|cel\.?|tel\.?|celular/i.test(line)) {
+        celular = phoneMatch[0].replace(/\D/g, "");
+        if (celular.length === 12 && celular.startsWith("57")) celular = celular.slice(2);
+        const leftover = line
+          .replace(phoneMatch[0], "")
+          .replace(/\b(?:whatsapp|wa|cel\.?|tel\.?|celular)\s*:?\s*/gi, "")
+          .trim()
+          .replace(/^[-–—,:.\s]+|[-–—,:.\s]+$/g, "");
+        if (leftover) rest.push(leftover);
+        return;
+      }
+
+      rest.push(line);
+    });
+
+    return { detalles: rest, celular, enlace };
+  }
+
+  function buildTallerDetalles(baseLines, celular, enlace) {
+    const details = [...baseLines];
+    const phone = String(celular || "").replace(/\D/g, "");
+    if (phone) {
+      const already = details.some((line) => line.replace(/\D/g, "").includes(phone));
+      if (!already) details.push(`WhatsApp: ${phone}`);
+    }
+    const link = String(enlace || "").trim();
+    if (link) {
+      const already = details.some((line) => line.includes(link));
+      if (!already) details.push(link);
+    }
+    return details;
+  }
+
+  function refreshTalleresRegionList() {
+    const list = document.getElementById("taller-regiones-list");
+    if (!list) return;
+    list.innerHTML = "";
+    (talleresData.regiones || []).forEach((region) => {
+      if (!region?.region) return;
+      const option = document.createElement("option");
+      option.value = region.region;
+      list.appendChild(option);
+    });
+  }
+
+  function parseTallerForm() {
+    const region = normalizeRegionName(document.getElementById("taller-region").value);
+    const nombre = document.getElementById("taller-nombre").value.trim();
+    const baseLines = document
+      .getElementById("taller-detalles")
+      .value.split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const celular = document.getElementById("taller-celular").value.trim();
+    const enlace = document.getElementById("taller-enlace").value.trim();
+    return {
+      region,
+      taller: {
+        nombre,
+        detalles: buildTallerDetalles(baseLines, celular, enlace),
+      },
+    };
+  }
+
+  function fillTallerForm(regionName, taller, regionIndex, tallerIndex) {
+    const extras = extractTallerExtras(taller.detalles);
+    document.getElementById("taller-edit-key").value = `${regionIndex}:${tallerIndex}`;
+    document.getElementById("taller-region").value = regionName || "";
+    document.getElementById("taller-nombre").value = taller.nombre || "";
+    document.getElementById("taller-detalles").value = extras.detalles.join("\n");
+    document.getElementById("taller-celular").value = extras.celular || "";
+    document.getElementById("taller-enlace").value = extras.enlace || "";
+    document.getElementById("btn-cancel-taller").classList.remove("hidden");
+    document.getElementById("btn-save-taller").textContent = "Actualizar taller";
+    document.getElementById("taller-nombre").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function clearTallerForm() {
+    document.getElementById("taller-edit-key").value = "";
+    document.getElementById("taller-region").value = "";
+    document.getElementById("taller-nombre").value = "";
+    document.getElementById("taller-detalles").value = "";
+    document.getElementById("taller-celular").value = "";
+    document.getElementById("taller-enlace").value = "";
+    document.getElementById("btn-cancel-taller").classList.add("hidden");
+    document.getElementById("btn-save-taller").textContent = "Guardar taller";
+  }
+
+  function renderTalleresAdmin() {
+    const listEl = document.getElementById("talleres-list");
+    const countEl = document.getElementById("talleres-count");
+    if (!listEl) return;
+
+    refreshTalleresRegionList();
+    listEl.innerHTML = "";
+
+    const total = countTalleres();
+    if (countEl) {
+      countEl.textContent = total
+        ? `${total} taller${total === 1 ? "" : "es"} publicado${total === 1 ? "" : "s"}`
+        : "";
+    }
+
+    if (!total) {
+      listEl.innerHTML = `<p class="empty-note">No hay talleres todavía. Crea el primero abajo.</p>`;
+      return;
+    }
+
+    (talleresData.regiones || []).forEach((region, regionIndex) => {
+      const talleres = Array.isArray(region.talleres) ? region.talleres : [];
+      talleres.forEach((taller, tallerIndex) => {
+        const card = document.createElement("div");
+        card.className = "info-admin-card";
+
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = region.region || "Sin ciudad";
+        card.appendChild(badge);
+
+        const h4 = document.createElement("h4");
+        h4.textContent = taller.nombre || `Taller ${tallerIndex + 1}`;
+        card.appendChild(h4);
+
+        const extras = extractTallerExtras(taller.detalles);
+        if (extras.detalles.length) {
+          const p = document.createElement("p");
+          p.textContent = extras.detalles.slice(0, 2).join(" · ");
+          card.appendChild(p);
+        }
+        if (extras.celular) {
+          const phone = document.createElement("p");
+          phone.textContent = `Cel. ${extras.celular}`;
+          card.appendChild(phone);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn btn-ghost";
+        editBtn.textContent = "Editar";
+        editBtn.addEventListener("click", () => fillTallerForm(region.region, taller, regionIndex, tallerIndex));
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn btn-danger";
+        delBtn.textContent = "Quitar";
+        delBtn.addEventListener("click", () => deleteTallerItem(regionIndex, tallerIndex));
+
+        actions.append(editBtn, delBtn);
+        card.appendChild(actions);
+        listEl.appendChild(card);
+      });
+    });
+  }
+
+  function ensureRegion(regionName) {
+    let region = (talleresData.regiones || []).find(
+      (item) => normalizeRegionName(item.region) === regionName
+    );
+    if (!region) {
+      region = { region: regionName, talleres: [] };
+      talleresData.regiones = talleresData.regiones || [];
+      talleresData.regiones.push(region);
+    }
+    if (!Array.isArray(region.talleres)) region.talleres = [];
+    return region;
+  }
+
+  function cleanupEmptyRegions() {
+    talleresData.regiones = (talleresData.regiones || []).filter(
+      (region) => Array.isArray(region.talleres) && region.talleres.length > 0
+    );
+  }
+
+  async function saveTallerItem() {
+    const parsed = parseTallerForm();
+    if (!parsed.region) {
+      showStatus(globalStatus, "Escribe la ciudad o región del taller.", "err");
+      return;
+    }
+    if (!parsed.taller.nombre) {
+      showStatus(globalStatus, "Escribe el nombre del taller.", "err");
+      return;
+    }
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      const editKey = document.getElementById("taller-edit-key").value;
+
+      if (editKey === "") {
+        const region = ensureRegion(parsed.region);
+        region.talleres.push(parsed.taller);
+        await commitTalleres(`Agregar taller: ${parsed.taller.nombre}`);
+        showStatus(globalStatus, "Taller agregado.", "ok");
+      } else {
+        const [regionIndexRaw, tallerIndexRaw] = editKey.split(":");
+        const regionIndex = Number(regionIndexRaw);
+        const tallerIndex = Number(tallerIndexRaw);
+        const currentRegion = talleresData.regiones?.[regionIndex];
+        if (!currentRegion?.talleres?.[tallerIndex]) {
+          throw new Error("No se encontró el taller a editar.");
+        }
+
+        const oldRegionName = normalizeRegionName(currentRegion.region);
+        if (oldRegionName === parsed.region) {
+          currentRegion.region = parsed.region;
+          currentRegion.talleres[tallerIndex] = parsed.taller;
+        } else {
+          currentRegion.talleres.splice(tallerIndex, 1);
+          cleanupEmptyRegions();
+          const region = ensureRegion(parsed.region);
+          region.talleres.push(parsed.taller);
+        }
+
+        await commitTalleres(`Actualizar taller: ${parsed.taller.nombre}`);
+        showStatus(globalStatus, "Taller actualizado.", "ok");
+      }
+
+      clearTallerForm();
+      renderTalleresAdmin();
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteTallerItem(regionIndex, tallerIndex) {
+    const region = talleresData.regiones?.[regionIndex];
+    const taller = region?.talleres?.[tallerIndex];
+    if (!taller) return;
+    if (!confirm(`¿Quitar el taller "${taller.nombre || tallerIndex}"?`)) return;
+
+    setBusy(true);
+    clearStatus(globalStatus);
+    try {
+      region.talleres.splice(tallerIndex, 1);
+      cleanupEmptyRegions();
+      await commitTalleres(`Quitar taller: ${taller.nombre || tallerIndex}`);
+      if (document.getElementById("taller-edit-key").value === `${regionIndex}:${tallerIndex}`) {
+        clearTallerForm();
+      }
+      renderTalleresAdmin();
+      showStatus(globalStatus, "Taller eliminado.", "ok");
+    } catch (error) {
+      showStatus(globalStatus, error.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function parseInfoForm() {
     const titulo = document.getElementById("info-titulo").value.trim();
     const texto = document.getElementById("info-texto").value.trim();
@@ -1175,6 +1566,8 @@
   document.getElementById("btn-add-convenio").addEventListener("click", addConvenio);
   document.getElementById("btn-save-coaching").addEventListener("click", saveCoachingItem);
   document.getElementById("btn-cancel-coaching").addEventListener("click", clearCoachingForm);
+  document.getElementById("btn-save-taller").addEventListener("click", saveTallerItem);
+  document.getElementById("btn-cancel-taller").addEventListener("click", clearTallerForm);
   document.getElementById("btn-save-info").addEventListener("click", saveInfoBlock);
   document.getElementById("btn-cancel-info").addEventListener("click", clearInfoForm);
   document.getElementById("prog-add-file").addEventListener("change", (event) => {
