@@ -178,5 +178,14 @@ window.VAGAMUNDOS_COACHING = [
     "mail": null,
     "redes_sociales": "IG: @withyou_2026",
     "descuento": "10% sobre cualquiera de los paquetes."
+  },
+  {
+    "nombre_piloto": "Nelson López",
+    "nombre_negocio": "Control PH",
+    "actividad_economica": "Asesoría contable y tributaria (declaraciones de rentas, especialistas en propiedad horizontal, Etc)",
+    "celular": "3207692537",
+    "mail": "conta.nel2024@gmail.com",
+    "redes_sociales": null,
+    "descuento": "Según servicio se puede ofrecer entre 10 a 20% según el servicio a contratar."
   }
 ];
